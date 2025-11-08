@@ -32,11 +32,44 @@ function AppContent() {
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 3000,
+          // Default duration based on message length
+          duration: 4000,
+
+          // Success messages - shorter duration
+          success: {
+            duration: 3000,
+            style: {
+              background: "hsl(var(--card))",
+              color: "hsl(var(--card-foreground))",
+              border: "1px solid hsl(var(--primary))",
+            },
+            iconTheme: {
+              primary: "hsl(var(--primary))",
+              secondary: "hsl(var(--card))",
+            },
+          },
+
+          // Error messages - longer duration so users can read them
+          error: {
+            duration: 5000,
+            style: {
+              background: "hsl(var(--card))",
+              color: "hsl(var(--card-foreground))",
+              border: "1px solid hsl(var(--destructive))",
+            },
+            iconTheme: {
+              primary: "hsl(var(--destructive))",
+              secondary: "hsl(var(--card))",
+            },
+          },
+
+          // Default style
           style: {
             background: "hsl(var(--card))",
             color: "hsl(var(--card-foreground))",
             border: "1px solid hsl(var(--border))",
+            padding: "16px",
+            fontSize: "14px",
           },
         }}
       />

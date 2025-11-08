@@ -165,6 +165,20 @@ All colors MUST be HSL.
   animation: spin 1s linear infinite;
 }
 
+.spinner-small {
+  border: 3px solid hsl(var(--primary-foreground) / 0.2);
+  border-left-color: hsl(var(--primary-foreground));
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-small.border-accent-foreground {
+  border: 3px solid hsl(var(--accent-foreground) / 0.2);
+  border-left-color: hsl(var(--accent-foreground));
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

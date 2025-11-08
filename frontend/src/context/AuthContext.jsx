@@ -7,6 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "../config/firebase.js";
 import { authService } from "../services/authService.jsx";
@@ -102,6 +103,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Reset password
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent! Check your inbox.", {
+        duration: 4500, // Longer duration for important message
+      });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  };
+
   // Update user profile
   const updateUserProfile = async (profileData) => {
     try {
@@ -151,6 +165,7 @@ export const AuthProvider = ({ children }) => {
     login,
     loginWithGoogle,
     logout,
+    resetPassword,
     updateUserProfile,
     fetchUserProfile,
   };

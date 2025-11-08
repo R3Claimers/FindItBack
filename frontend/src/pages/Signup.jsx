@@ -2,8 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
-import { Mail, Lock, User, UserPlus, Compass, Moon, Sun } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  UserPlus,
+  Compass,
+  Moon,
+  Sun,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import toast from "react-hot-toast";
+import { getFirebaseErrorMessage } from "../utils/errorMessages.js";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +23,8 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signup, loginWithGoogle, currentUser } = useAuth();
   const { toggleTheme, isDark } = useTheme();
@@ -60,11 +73,7 @@ const Signup = () => {
       navigate("/");
     } catch (error) {
       console.error("Signup error:", error);
-      const errorMessage =
-        error.code === "auth/email-already-in-use"
-          ? "Email already in use"
-          : error.message || "Failed to create account";
-      toast.error(errorMessage);
+      toast.error(getFirebaseErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -77,7 +86,7 @@ const Signup = () => {
       navigate("/");
     } catch (error) {
       console.error("Google signup error:", error);
-      toast.error(error.message || "Failed to sign up with Google");
+      toast.error(getFirebaseErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -192,13 +201,25 @@ const Signup = () => {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
+                  className="w-full pl-10 pr-12 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-smooth"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -217,13 +238,27 @@ const Signup = () => {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
+                  className="w-full pl-10 pr-12 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-smooth"
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -231,16 +266,15 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full gradient-primary text-primary-foreground rounded-lg py-3 px-4 font-medium hover:opacity-90 transition-smooth shadow-soft flex items-center justify-center space-x-2 text-lg"
+              className="w-full gradient-primary text-primary-foreground rounded-lg py-3 px-4 font-medium hover:opacity-90 transition-smooth shadow-soft flex items-center justify-center space-x-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed relative"
             >
-              {loading ? (
-                <div className="spinner" />
-              ) : (
-                <>
-                  <UserPlus className="h-5 w-5" />
-                  <span>Sign Up</span>
-                </>
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-primary/20 backdrop-blur-sm rounded-lg">
+                  <div className="spinner-small" />
+                </div>
               )}
+              <UserPlus className="h-5 w-5" />
+              <span>Sign Up</span>
             </button>
           </form>
 
@@ -263,8 +297,13 @@ const Signup = () => {
             type="button"
             onClick={handleGoogleSignup}
             disabled={loading}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-lg hover:bg-muted transition-smooth font-medium text-foreground"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-lg hover:bg-muted transition-smooth font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed relative"
           >
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/80 backdrop-blur-sm rounded-lg">
+                <div className="spinner-small" />
+              </div>
+            )}
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"

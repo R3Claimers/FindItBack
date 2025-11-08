@@ -38,7 +38,7 @@ const Navbar = () => {
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm transition-smooth">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20">
+        <div className="flex justify-between items-center h-20">
           {/* Logo and Brand */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
@@ -62,9 +62,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Centered */}
           {currentUser && (
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center justify-center flex-1 space-x-2">
               <Link
                 to="/"
                 className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-smooth ${
@@ -100,15 +100,12 @@ const Navbar = () => {
                 <Compass className="h-5 w-5" />
                 <span>Matches</span>
               </Link>
+            </div>
+          )}
 
-              <Link
-                to="/post"
-                className="flex items-center space-x-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-smooth shadow-soft font-medium"
-              >
-                <PlusCircle className="h-5 w-5" />
-                <span>Post Item</span>
-              </Link>
-
+          {/* Right Side - Theme Toggle & Profile */}
+          {currentUser && (
+            <div className="hidden md:flex items-center space-x-3">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -168,7 +165,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           {currentUser && (
-            <div className="md:hidden flex items-center space-x-2">
+            <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-muted hover:bg-muted/70 transition-smooth"
@@ -234,14 +231,6 @@ const Navbar = () => {
             >
               <Compass className="h-5 w-5" />
               <span>Matches</span>
-            </Link>
-            <Link
-              to="/post"
-              className="flex items-center space-x-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-smooth shadow-soft font-medium w-full justify-center"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <PlusCircle className="h-5 w-5" />
-              <span>Post Item</span>
             </Link>
             <Link
               to="/profile"
