@@ -4,9 +4,11 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Navbar from "./components/Navbar.jsx";
 
@@ -21,106 +23,104 @@ import FoundItemDetail from "./pages/FoundItemDetail.jsx";
 import Profile from "./pages/Profile.jsx";
 import Matches from "./pages/Matches.jsx";
 
+function AppContent() {
+  const location = useLocation();
+  const isAuthPage = ["/login", "/signup"].includes(location.pathname);
+
+  return (
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "hsl(var(--card))",
+            color: "hsl(var(--card-foreground))",
+            border: "1px solid hsl(var(--border))",
+          },
+        }}
+      />
+      <div className="min-h-screen bg-background">
+        {!isAuthPage && <Navbar />}
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <ProtectedRoute>
+                <Search />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/post"
+            element={
+              <ProtectedRoute>
+                <PostItem />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lost/:id"
+            element={
+              <ProtectedRoute>
+                <LostItemDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/found/:id"
+            element={
+              <ProtectedRoute>
+                <FoundItemDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute>
+                <Matches />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </div>
+    </>
+  );
+}
+
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-
-            {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/search"
-              element={
-                <ProtectedRoute>
-                  <Search />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/post"
-              element={
-                <ProtectedRoute>
-                  <PostItem />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lost/:id"
-              element={
-                <ProtectedRoute>
-                  <LostItemDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/found/:id"
-              element={
-                <ProtectedRoute>
-                  <FoundItemDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/matches"
-              element={
-                <ProtectedRoute>
-                  <Matches />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Catch all */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-
-          {/* Toast Notifications */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-              success: {
-                duration: 3000,
-                iconTheme: {
-                  primary: "#10b981",
-                  secondary: "#fff",
-                },
-              },
-              error: {
-                duration: 4000,
-                iconTheme: {
-                  primary: "#ef4444",
-                  secondary: "#fff",
-                },
-              },
-            }}
-          />
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

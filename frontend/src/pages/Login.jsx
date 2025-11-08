@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { Mail, Lock, LogIn, Compass } from "lucide-react";
+import { useTheme } from "../context/ThemeContext.jsx";
+import { Mail, Lock, LogIn, Compass, Moon, Sun } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -9,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle, currentUser } = useAuth();
+  const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -57,7 +59,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-hero py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center gradient-hero py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Theme Toggle Button - Top Right */}
+      <button
+        onClick={toggleTheme}
+        className="absolute top-6 right-6 p-3 rounded-lg bg-card hover:bg-card/80 transition-smooth shadow-soft border border-border"
+        aria-label="Toggle theme"
+      >
+        {isDark ? (
+          <Sun className="h-6 w-6 text-accent" />
+        ) : (
+          <Moon className="h-6 w-6 text-primary" />
+        )}
+      </button>
+
       <div className="max-w-md w-full">
         {/* Logo and Header */}
         <div className="text-center mb-8">
@@ -106,7 +121,7 @@ const Login = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth"
+                  className="w-full pl-10 pr-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
                   placeholder="you@example.com"
                   required
                 />
@@ -130,7 +145,7 @@ const Login = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth"
+                  className="w-full pl-10 pr-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth placeholder:text-muted-foreground"
                   placeholder="••••••••"
                   required
                 />

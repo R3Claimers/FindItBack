@@ -56,7 +56,7 @@ const Navbar = () => {
                 className="h-12 w-12 text-primary transition-transform hover:scale-110 duration-300"
                 style={{ display: "none" }}
               />
-              <span className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
+              <span className="text-2xl font-bold text-primary dark:text-primary">
                 FindItBack
               </span>
             </Link>

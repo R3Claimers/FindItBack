@@ -51,8 +51,8 @@ All colors MUST be HSL.
     );
     --gradient-hero: linear-gradient(
       135deg,
-      hsl(180 75% 42% / 0.1),
-      hsl(35 95% 55% / 0.1)
+      hsl(180 75% 42% / 0.05),
+      hsl(35 95% 55% / 0.05)
     );
 
     --shadow-soft: 0 2px 8px hsl(180 75% 42% / 0.08);
@@ -234,5 +234,75 @@ All colors MUST be HSL.
 
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Card Styles */
+  .card {
+    @apply bg-card border border-border rounded-xl p-6 transition-smooth;
+  }
+
+  .card-hover {
+    @apply hover:shadow-medium hover:border-primary/30;
+  }
+
+  /* Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-smooth;
+  }
+
+  .badge-primary {
+    @apply bg-primary/10 text-primary dark:bg-primary/20;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+  }
+
+  /* Category Badge Colors */
+  .badge-electronics {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+  }
+
+  .badge-documents {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+  }
+
+  .badge-keys {
+    @apply bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400;
+  }
+
+  .badge-bags {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+  }
+
+  .badge-wallets {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+  }
+
+  .badge-jewelry {
+    @apply bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400;
+  }
+
+  .badge-clothing {
+    @apply bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400;
+  }
+
+  .badge-pets {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400;
+  }
+
+  .badge-other {
+    @apply bg-muted text-muted-foreground;
   }
 }

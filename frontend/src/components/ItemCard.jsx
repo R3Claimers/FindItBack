@@ -7,19 +7,19 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
   const isLost = type === "lost";
   const itemPath = isLost ? `/lost/${item._id}` : `/found/${item._id}`;
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      Electronics: "bg-blue-100 text-blue-800",
-      Documents: "bg-yellow-100 text-yellow-800",
-      Keys: "bg-purple-100 text-purple-800",
-      Bags: "bg-green-100 text-green-800",
-      Wallets: "bg-red-100 text-red-800",
-      Jewelry: "bg-pink-100 text-pink-800",
-      Clothing: "bg-indigo-100 text-indigo-800",
-      Pets: "bg-orange-100 text-orange-800",
-      Other: "bg-gray-100 text-gray-800",
+  const getCategoryBadgeClass = (category) => {
+    const badges = {
+      Electronics: "badge-electronics",
+      Documents: "badge-documents",
+      Keys: "badge-keys",
+      Bags: "badge-bags",
+      Wallets: "badge-wallets",
+      Jewelry: "badge-jewelry",
+      Clothing: "badge-clothing",
+      Pets: "badge-pets",
+      Other: "badge-other",
     };
-    return colors[category] || colors.Other;
+    return badges[category] || badges.Other;
   };
 
   const getStatusBadge = () => {
@@ -47,14 +47,14 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
             <img
               src={item.imageUrl}
               alt={item.title}
-              className="w-full h-48 object-cover rounded-lg mb-4"
+              className="w-full h-48 object-cover rounded-lg mb-4 hover:opacity-95 transition-smooth"
             />
           </Link>
         )}
 
         {/* Category and Status */}
         <div className="flex items-center justify-between mb-3">
-          <span className={`badge ${getCategoryColor(item.category)}`}>
+          <span className={`badge ${getCategoryBadgeClass(item.category)}`}>
             {item.category}
           </span>
           {getStatusBadge()}
@@ -62,16 +62,16 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
 
         {/* Title and Description */}
         <Link to={itemPath}>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
+          <h3 className="text-xl font-semibold text-card-foreground mb-2 hover:text-primary transition-smooth">
             {item.title}
           </h3>
         </Link>
-        <p className="text-gray-600 mb-4 flex-grow">
+        <p className="text-muted-foreground mb-4 flex-grow">
           {truncateText(item.description, 120)}
         </p>
 
         {/* Details */}
-        <div className="space-y-2 text-sm text-gray-500">
+        <div className="space-y-2 text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
             <MapPin className="h-4 w-4" />
             <span>{item.location}</span>
@@ -86,28 +86,31 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
         </div>
 
         {/* Posted by */}
-        <div className="mt-4 pt-4 border-t flex items-center justify-between">
+        <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {item.userId?.profilePic ? (
               <img
                 src={item.userId.profilePic}
                 alt={item.userId.name}
-                className="h-8 w-8 rounded-full object-cover"
+                className="h-8 w-8 rounded-full object-cover border-2 border-border"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold">
+              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
                 {item.userId?.name?.substring(0, 2).toUpperCase()}
               </div>
             )}
-            <span className="text-sm text-gray-600">
-              Posted by <span className="font-medium">{item.userId?.name}</span>
+            <span className="text-sm text-muted-foreground">
+              Posted by{" "}
+              <span className="font-medium text-foreground">
+                {item.userId?.name}
+              </span>
             </span>
           </div>
 
           {onAction && (
             <button
               onClick={() => onAction(item)}
-              className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+              className="text-primary hover:text-primary/80 font-medium text-sm transition-smooth"
             >
               View
             </button>
