@@ -1,30 +1,48 @@
 # 🧭 FindItBack - Lost & Found Platform
 
-A comprehensive web-based Lost and Found management system built with the **MERN Stack** (MongoDB, Express, React, Node.js) and **Firebase Authentication**. The platform helps users post lost or found items and uses an intelligent matching algorithm to suggest potential matches.
+A comprehensive web-based Lost and Found management system built with the **MERN Stack** (MongoDB, Express, React, Node.js), **Firebase Authentication**, and **Cloudinary** for image storage. The platform helps users post lost or found items and uses an intelligent matching algorithm to suggest potential matches.
 
 ## ✨ Features
 
 ### 🔐 Authentication
 
-- **Email/Password** authentication
+- **Email/Password** authentication with Firebase
 - **Google Sign-In** integration
 - Secure Firebase Auth with JWT tokens
-- Protected routes
+- **Change Password** functionality
+- Protected routes with unauthorized access warnings
 
 ### 📦 Item Management
 
-- **Post Lost Items** with details (title, description, category, location, date, image)
-- **Post Found Items** with the same comprehensive details
+- **Post Lost Items** with details (title, description, category, location, date, images)
+- **Post Found Items** with comprehensive details
 - **Edit & Delete** your own posts
 - **Mark items** as resolved/returned
-- **Image Upload** to Firebase Storage
+- **Image Upload** to Cloudinary (max 5 images, 5MB each, auto-resize to 1000x1000)
+- **Multiple image support** with preview
+
+### 💬 Comments System
+
+- **Add comments** on any lost/found post
+- **Delete your own comments**
+- **User avatars** with initials
+- **Relative timestamps** (e.g., "2 hours ago")
+- **Character limit** (500 characters)
 
 ### 🔍 Search & Filter
 
 - **Global Search** across all items
-- **Advanced Filters**: Category, Location, Date range
+- **Advanced Filters**: Category, Location, Date range, Status
+- **Tab-based view** (All, Lost Items, Found Items)
 - **Pagination** for performance
 - **Real-time Results**
+
+### 👤 User Profile
+
+- **Profile Management**: View/Edit name, phone, bio
+- **Change Password** with re-authentication
+- **My Posts Section**: View all your lost and found items
+- **Edit/Delete Posts** directly from profile
 
 ### 🎯 Smart Matching Algorithm
 
@@ -40,12 +58,13 @@ A comprehensive web-based Lost and Found management system built with the **MERN
 
 ### 🎨 Beautiful UI
 
-- **Modern Design** with Teal & Golden-Orange theme
+- **Modern Design** with Cyan/Teal & gradient theme
 - **Dark Mode** support with theme toggle
 - **Responsive** across all devices
-- **Smooth Animations** and transitions
-- **Intuitive Navigation**
+- **Smooth Animations** and animated gradient flares
+- **Intuitive Navigation** (Home, Posts, Post Item, Profile)
 - **Toast Notifications** for user feedback
+- **Loading Overlays** to prevent duplicate submissions
 - **HSL-based Design System** for consistency
 
 ## 🏗️ Architecture
@@ -123,8 +142,17 @@ FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
 
+# Cloudinary Configuration
+CLOUDINARY_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_URL=cloudinary://api-key:api-secret@cloud-name
+
 # CORS
 CORS_ORIGIN=http://localhost:3000
+
+# API Configuration
+API_PREFIX=/api/v1
 ```
 
 Start backend:
@@ -172,17 +200,29 @@ Frontend runs on `http://localhost:3000`
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Create a new project
 3. Enable **Authentication** → **Email/Password** & **Google**
-4. Enable **Cloud Storage** for image uploads
-5. Get **Web App** credentials for frontend
-6. Generate **Service Account** key for backend
+4. Get **Web App** credentials for frontend (.env)
+5. Generate **Service Account** key for backend (.env)
 
 ### MongoDB Atlas Setup
 
 1. Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster
-3. Create database user
-4. Whitelist your IP
-5. Get connection string
+2. Create a new cluster (free tier available)
+3. Create database user with password
+4. Whitelist your IP address (0.0.0.0/0 for development)
+5. Get connection string and update MONGODB_URI
+
+### Cloudinary Setup
+
+1. Create account at [Cloudinary](https://cloudinary.com/)
+2. Go to Dashboard
+3. Copy Cloud Name, API Key, and API Secret
+4. Add to backend `.env` file
+5. Images will be automatically uploaded to `finditback/items` folder
+6. Features:
+   - Auto-resize to 1000x1000 (maintains aspect ratio)
+   - Max 5 images per post
+   - 5MB per image limit
+   - Supported formats: JPG, JPEG, PNG, GIF, WEBP
 
 ## 📚 API Documentation
 
@@ -207,15 +247,16 @@ Authorization: Bearer <firebase-id-token>
 - `POST /users` - Create/update user profile
 - `GET /users/me` - Get current user
 - `PUT /users/me` - Update profile
+- `POST /users/change-password` - Change password
 - `DELETE /users/me` - Delete account
 
 #### Lost Items
 
-- `POST /lost-items` - Create lost item
+- `POST /lost-items` - Create lost item (with image upload)
 - `GET /lost-items` - Get all (with filters)
 - `GET /lost-items/:id` - Get by ID
 - `GET /lost-items/my-items` - Get user's items
-- `PUT /lost-items/:id` - Update item
+- `PUT /lost-items/:id` - Update item (with image upload)
 - `DELETE /lost-items/:id` - Delete item
 - `PATCH /lost-items/:id/resolve` - Mark as resolved
 - `GET /lost-items/search?q=query` - Search
@@ -224,6 +265,12 @@ Authorization: Bearer <firebase-id-token>
 
 - Same endpoints as Lost Items, replace `/lost-items` with `/found-items`
 - `PATCH /found-items/:id/return` - Mark as returned
+
+#### Comments
+
+- `POST /comments` - Add comment to post
+- `GET /comments/:itemId` - Get all comments for an item
+- `DELETE /comments/:id` - Delete your comment
 
 #### Matches
 
@@ -241,7 +288,8 @@ Authorization: Bearer <firebase-id-token>
 - **Vite** 5 - Build tool (⚡ Lightning fast!)
 - **React Router** v6 - Routing
 - **Tailwind CSS** - Styling with custom HSL theme
-- **Firebase** - Auth & Storage
+- **Firebase** - Authentication
+- **Cloudinary** - Image storage (via backend)
 - **Axios** - HTTP client
 - **React Hot Toast** - Notifications
 - **Lucide React** - Icons
@@ -254,10 +302,14 @@ Authorization: Bearer <firebase-id-token>
 - **MongoDB** - Database
 - **Mongoose** - ODM
 - **Firebase Admin** - Auth verification
+- **Cloudinary** - Image upload/storage
+- **Multer** - File upload middleware
 - **Express Validator** - Input validation
 - **Helmet** - Security headers
 - **CORS** - Cross-origin requests
 - **Morgan** - HTTP logger
+- **Compression** - Response compression
+- **Rate Limiting** - API protection
 
 ## 🧪 Testing
 
@@ -315,11 +367,62 @@ Already cloud-hosted ✅
 
 ## 🎨 Design System
 
-- **Primary Color**: Teal (HSL: 180°, 75%, 42%)
-- **Accent Color**: Golden Orange (HSL: 35°, 95%, 55%)
-- **Dark Mode**: Full support with persistent theme
-- **Responsive**: Mobile-first design
-- **Animations**: Smooth transitions (cubic-bezier)
+- **Primary Colors**: Cyan/Teal gradient (HSL based)
+- **Animations**: Gradient flares with smooth transitions
+- **Dark Mode**: Full support with persistent theme storage
+- **Responsive**: Mobile-first design approach
+- **Transitions**: Smooth cubic-bezier animations
+- **Components**: Reusable card system with hover effects
+
+## 📱 Pages & Features
+
+### Home Page
+
+- Hero section with animated gradient background
+- Call-to-action buttons
+- Statistics overview
+
+### Posts/Search Page
+
+- Tabbed interface (All, Lost Items, Found Items)
+- Advanced search with filters
+- Category dropdown
+- Pagination support
+
+### Post Item Page
+
+- Form wizard for lost/found items
+- Multi-image upload with preview
+- Image removal capability
+- Real-time validation
+- Loading overlay during submission
+
+### Profile Page
+
+- Three tabs: Profile, Change Password, My Posts
+- Edit profile information
+- Secure password change with re-authentication
+- View/Edit/Delete your posts with action buttons
+
+### Item Detail Pages
+
+- Full item details with image gallery
+- Comments section
+- Contact information
+- Edit/Delete buttons (for owners)
+- Report functionality
+
+## 🔒 Security Features
+
+- Firebase JWT token authentication
+- Protected API routes
+- Input validation and sanitization
+- Rate limiting on API endpoints
+- CORS configuration
+- Helmet security headers
+- Password hashing (Firebase handled)
+- Secure password change with re-authentication
+- Cloudinary secure image URLs
 
 ## 🤝 Contributing
 

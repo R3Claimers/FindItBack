@@ -56,6 +56,16 @@ const lostItemSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function (v) {
+          return v.length <= 5;
+        },
+        message: "Maximum 5 images allowed",
+      },
+    },
     status: {
       type: String,
       enum: ["open", "resolved"],

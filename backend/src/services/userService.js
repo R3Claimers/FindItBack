@@ -6,13 +6,27 @@ class UserService {
    */
   async createOrUpdateUser(userData) {
     try {
-      // Check if user already exists
+      // Check if user already exists by UID
       const existingUser = await userRepository.findByUid(userData.uid);
 
       if (existingUser) {
         // Update existing user
         const updatedUser = await userRepository.updateByUid(
           userData.uid,
+          userData
+        );
+        return {
+          user: updatedUser,
+          isNew: false,
+        };
+      }
+
+      // Check if email already exists
+      const existingEmail = await userRepository.findByEmail(userData.email);
+      if (existingEmail) {
+        // If email exists but UID is different, update the user with new UID
+        const updatedUser = await userRepository.updateByUid(
+          existingEmail.uid,
           userData
         );
         return {
@@ -28,6 +42,12 @@ class UserService {
         isNew: true,
       };
     } catch (error) {
+      // Handle MongoDB duplicate key error
+      if (error.code === 11000) {
+        // Extract the duplicate field from the error
+        const field = Object.keys(error.keyPattern)[0];
+        throw new Error(`${field} already exists`);
+      }
       throw error;
     }
   }

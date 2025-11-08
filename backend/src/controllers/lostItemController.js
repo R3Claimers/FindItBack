@@ -7,7 +7,16 @@ class LostItemController {
    */
   async createLostItem(req, res, next) {
     try {
-      const item = await lostItemService.createLostItem(req.user._id, req.body);
+      // Extract Cloudinary image URLs from uploaded files
+      const images = req.files ? req.files.map((file) => file.path) : [];
+
+      // Add images to request body
+      const itemData = {
+        ...req.body,
+        images,
+      };
+
+      const item = await lostItemService.createLostItem(req.user._id, itemData);
 
       res.status(201).json({
         status: "success",
@@ -106,10 +115,29 @@ class LostItemController {
    */
   async updateLostItem(req, res, next) {
     try {
+      // Extract new images from uploaded files (if any)
+      const newImages = req.files ? req.files.map((file) => file.path) : [];
+
+      // Get existing images to keep (if provided)
+      let existingImages = [];
+      if (req.body.existingImages) {
+        existingImages = Array.isArray(req.body.existingImages)
+          ? req.body.existingImages
+          : [req.body.existingImages];
+      }
+
+      // Combine existing and new images
+      const images = [...existingImages, ...newImages];
+
+      const itemData = {
+        ...req.body,
+        images,
+      };
+
       const item = await lostItemService.updateLostItem(
         req.params.id,
         req.user._id,
-        req.body
+        itemData
       );
 
       res.status(200).json({
