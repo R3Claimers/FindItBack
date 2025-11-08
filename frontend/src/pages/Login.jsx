@@ -20,6 +20,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const { login, loginWithGoogle, resetPassword, currentUser } = useAuth();
@@ -54,7 +55,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     try {
       await loginWithGoogle();
       navigate("/");
@@ -62,7 +63,7 @@ const Login = () => {
       console.error("Google login error:", error);
       toast.error(getFirebaseErrorMessage(error));
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -207,7 +208,7 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="w-full gradient-primary text-primary-foreground rounded-lg py-3 px-4 font-medium hover:opacity-90 transition-smooth shadow-soft flex items-center justify-center space-x-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed relative"
             >
               {loading && (
@@ -237,10 +238,10 @@ const Login = () => {
           {/* Google Sign In */}
           <button
             onClick={handleGoogleLogin}
-            disabled={loading}
+            disabled={loading || googleLoading}
             className="w-full border border-border bg-card hover:bg-muted rounded-lg py-3 px-4 font-medium transition-smooth shadow-soft flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed relative"
           >
-            {loading && (
+            {googleLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/80 backdrop-blur-sm rounded-lg">
                 <div className="spinner-small" />
               </div>

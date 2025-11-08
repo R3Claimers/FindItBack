@@ -24,4 +24,13 @@ export const authService = {
     const response = await api.delete("/users/me");
     return response.data;
   },
+
+  // Change password
+  changePassword: async (currentPassword, newPassword) => {
+    const response = await api.post("/users/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  },
 };

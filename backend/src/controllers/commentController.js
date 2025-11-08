@@ -1,0 +1,90 @@
+const Comment = require("../models/Comment");
+
+class CommentController {
+  /**
+   * Add a comment to an item
+   * POST /api/v1/comments
+   */
+  async addComment(req, res, next) {
+    try {
+      const { itemId, itemType, content } = req.body;
+
+      const comment = await Comment.create({
+        itemId,
+        itemType,
+        userId: req.user._id,
+        content,
+      });
+
+      // Populate user info
+      await comment.populate("userId", "name email profilePic");
+
+      res.status(201).json({
+        status: "success",
+        message: "Comment added successfully",
+        data: comment,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get comments for an item
+   * GET /api/v1/comments/:itemId
+   */
+  async getItemComments(req, res, next) {
+    try {
+      const { itemId } = req.params;
+
+      const comments = await Comment.find({ itemId })
+        .populate("userId", "name email profilePic")
+        .sort({ createdAt: -1 });
+
+      res.status(200).json({
+        status: "success",
+        data: comments,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete a comment
+   * DELETE /api/v1/comments/:id
+   */
+  async deleteComment(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const comment = await Comment.findById(id);
+
+      if (!comment) {
+        return res.status(404).json({
+          status: "error",
+          message: "Comment not found",
+        });
+      }
+
+      // Check if user is the comment owner
+      if (comment.userId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          status: "error",
+          message: "You can only delete your own comments",
+        });
+      }
+
+      await comment.deleteOne();
+
+      res.status(200).json({
+        status: "success",
+        message: "Comment deleted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+module.exports = new CommentController();

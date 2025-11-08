@@ -4,7 +4,11 @@ const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
-require("dotenv").config();
+const path = require("path");
+const dotenv = require("dotenv");
+
+// Load environment variables FIRST
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const connectDB = require("./config/database");
 const { initializeFirebase } = require("./config/firebase");
@@ -15,6 +19,7 @@ const userRoutes = require("./routes/userRoutes");
 const lostItemRoutes = require("./routes/lostItemRoutes");
 const foundItemRoutes = require("./routes/foundItemRoutes");
 const matchRoutes = require("./routes/matchRoutes");
+const commentRoutes = require("./routes/commentRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +47,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (uploaded images)
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -65,6 +73,7 @@ app.use(`${API_PREFIX}/users`, userRoutes);
 app.use(`${API_PREFIX}/lost-items`, lostItemRoutes);
 app.use(`${API_PREFIX}/found-items`, foundItemRoutes);
 app.use(`${API_PREFIX}/matches`, matchRoutes);
+app.use(`${API_PREFIX}/comments`, commentRoutes);
 
 // 404 handler
 app.use((req, res) => {

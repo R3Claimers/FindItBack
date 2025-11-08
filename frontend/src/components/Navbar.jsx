@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 import {
-  Search,
+  FileText,
   PlusCircle,
   User,
   LogOut,
@@ -85,20 +85,8 @@ const Navbar = () => {
                     : "text-foreground hover:text-primary hover:bg-muted"
                 }`}
               >
-                <Search className="h-5 w-5" />
-                <span>Search</span>
-              </Link>
-
-              <Link
-                to="/matches"
-                className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-smooth ${
-                  isActive("/matches")
-                    ? "text-primary bg-primary/10"
-                    : "text-foreground hover:text-primary hover:bg-muted"
-                }`}
-              >
-                <Compass className="h-5 w-5" />
-                <span>Matches</span>
+                <FileText className="h-5 w-5" />
+                <span>Posts</span>
               </Link>
             </div>
           )}
@@ -217,20 +205,8 @@ const Navbar = () => {
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              <Search className="h-5 w-5" />
-              <span>Search</span>
-            </Link>
-            <Link
-              to="/matches"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-smooth ${
-                isActive("/matches")
-                  ? "text-primary bg-primary/10"
-                  : "text-foreground hover:bg-muted"
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Compass className="h-5 w-5" />
-              <span>Matches</span>
+              <FileText className="h-5 w-5" />
+              <span>Posts</span>
             </Link>
             <Link
               to="/profile"

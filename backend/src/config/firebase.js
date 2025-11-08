@@ -17,11 +17,22 @@ const initializeFirebase = () => {
       });
     } else {
       // Initialize with environment variables
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(
+        /\\n/g,
+        "\n"
+      );
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+      if (!projectId || !privateKey || !clientEmail) {
+        throw new Error("Missing required Firebase environment variables");
+      }
+
       firebaseApp = admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          projectId: projectId,
+          privateKey: privateKey,
+          clientEmail: clientEmail,
         }),
       });
     }

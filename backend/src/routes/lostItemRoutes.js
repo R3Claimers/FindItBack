@@ -7,6 +7,7 @@ const {
   validateId,
   validatePagination,
 } = require("../middlewares/validation");
+const { uploadMultiple, handleUploadError } = require("../config/cloudinary");
 
 // All routes require authentication
 router.use(authenticateUser);
@@ -18,11 +19,17 @@ router.get("/search", validatePagination, lostItemController.searchLostItems);
 router.get("/my-items", validatePagination, lostItemController.getMyLostItems);
 
 // CRUD operations
-router.post("/", lostItemValidation.create, lostItemController.createLostItem);
+router.post(
+  "/",
+  handleUploadError(uploadMultiple),
+  lostItemValidation.create,
+  lostItemController.createLostItem
+);
 router.get("/", validatePagination, lostItemController.getAllLostItems);
 router.get("/:id", validateId, lostItemController.getLostItemById);
 router.put(
   "/:id",
+  handleUploadError(uploadMultiple),
   validateId,
   lostItemValidation.update,
   lostItemController.updateLostItem

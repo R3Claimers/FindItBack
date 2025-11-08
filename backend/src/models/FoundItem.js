@@ -56,6 +56,16 @@ const foundItemSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function (v) {
+          return v.length <= 5;
+        },
+        message: "Maximum 5 images allowed",
+      },
+    },
     isReturned: {
       type: Boolean,
       default: false,

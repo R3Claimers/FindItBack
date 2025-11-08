@@ -9,6 +9,7 @@ import {
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import { LoadingProvider } from "./context/LoadingContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Navbar from "./components/Navbar.jsx";
 
@@ -22,6 +23,7 @@ import LostItemDetail from "./pages/LostItemDetail.jsx";
 import FoundItemDetail from "./pages/FoundItemDetail.jsx";
 import Profile from "./pages/Profile.jsx";
 import Matches from "./pages/Matches.jsx";
+import EditPost from "./pages/EditPost.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -130,6 +132,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/edit/:type/:id"
+            element={
+              <ProtectedRoute>
+                <EditPost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/matches"
             element={
               <ProtectedRoute>
@@ -151,7 +161,9 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <AppContent />
+          <LoadingProvider>
+            <AppContent />
+          </LoadingProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

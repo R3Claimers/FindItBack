@@ -26,6 +26,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { signup, loginWithGoogle, currentUser } = useAuth();
   const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     try {
       await loginWithGoogle();
       navigate("/");
@@ -88,7 +89,7 @@ const Signup = () => {
       console.error("Google signup error:", error);
       toast.error(getFirebaseErrorMessage(error));
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -265,7 +266,7 @@ const Signup = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="w-full gradient-primary text-primary-foreground rounded-lg py-3 px-4 font-medium hover:opacity-90 transition-smooth shadow-soft flex items-center justify-center space-x-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed relative"
             >
               {loading && (
@@ -296,10 +297,10 @@ const Signup = () => {
           <button
             type="button"
             onClick={handleGoogleSignup}
-            disabled={loading}
+            disabled={loading || googleLoading}
             className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-lg hover:bg-muted transition-smooth font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed relative"
           >
-            {loading && (
+            {googleLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/80 backdrop-blur-sm rounded-lg">
                 <div className="spinner-small" />
               </div>

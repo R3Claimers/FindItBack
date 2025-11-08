@@ -1,11 +1,35 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, Image as ImageIcon } from "lucide-react";
 import { formatDate, truncateText } from "../utils/helpers.js";
 
 const ItemCard = ({ item, type = "lost", onAction }) => {
   const isLost = type === "lost";
   const itemPath = isLost ? `/lost/${item._id}` : `/found/${item._id}`;
+
+  // Get backend URL for images
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith("http")) return imagePath;
+    const baseUrl =
+      import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+    const serverUrl = baseUrl.replace("/api/v1", "");
+    return `${serverUrl}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+  };
+
+  // Get images from item (support both old imageUrl and new images array)
+  const getItemImages = () => {
+    if (item.images && item.images.length > 0) {
+      return item.images;
+    }
+    if (item.imageUrl) {
+      return [item.imageUrl];
+    }
+    return [];
+  };
+
+  const itemImages = getItemImages();
+  const hasMultipleImages = itemImages.length > 1;
 
   const getCategoryBadgeClass = (category) => {
     const badges = {
@@ -41,15 +65,27 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
   return (
     <div className="card card-hover">
       <div className="flex flex-col h-full">
-        {/* Image */}
-        {item.imageUrl && (
-          <Link to={itemPath}>
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="w-full h-48 object-cover rounded-lg mb-4 hover:opacity-95 transition-smooth"
-            />
+        {/* Image(s) */}
+        {itemImages.length > 0 ? (
+          <Link to={itemPath} className="relative group">
+            <div className="w-full h-48 bg-muted rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+              <img
+                src={getImageUrl(itemImages[0])}
+                alt={item.title}
+                className="max-w-full max-h-full object-contain hover:opacity-95 transition-smooth"
+              />
+            </div>
+            {hasMultipleImages && (
+              <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+                {itemImages.length}
+              </div>
+            )}
           </Link>
+        ) : (
+          <div className="w-full h-48 bg-muted rounded-lg mb-4 flex items-center justify-center">
+            <ImageIcon className="h-12 w-12 text-muted-foreground opacity-50" />
+          </div>
         )}
 
         {/* Category and Status */}
@@ -96,7 +132,7 @@ const ItemCard = ({ item, type = "lost", onAction }) => {
               />
             ) : (
               <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
-                {item.userId?.name?.substring(0, 2).toUpperCase()}
+                {item.userId?.name?.charAt(0).toUpperCase() || "U"}
               </div>
             )}
             <span className="text-sm text-muted-foreground">
