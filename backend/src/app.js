@@ -22,6 +22,7 @@ const matchRoutes = require("./routes/matchRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
 // Initialize Firebase
