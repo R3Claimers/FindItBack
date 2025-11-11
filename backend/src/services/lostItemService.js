@@ -117,6 +117,27 @@ class LostItemService {
   }
 
   /**
+   * Update lost item status
+   */
+  async updateStatus(id, userId, status) {
+    try {
+      const item = await lostItemRepository.update(id, userId, {
+        status,
+      });
+
+      if (!item) {
+        throw new Error(
+          "Lost item not found or you are not authorized to update it"
+        );
+      }
+
+      return item;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Search lost items
    */
   async searchLostItems(searchTerm, page, limit) {

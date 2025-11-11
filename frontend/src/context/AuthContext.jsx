@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileFetchedForUid, setProfileFetchedForUid] = useState(null);
 
   // Sign up with email and password
   const signup = async (email, password, name) => {
@@ -106,12 +107,39 @@ export const AuthProvider = ({ children }) => {
   // Reset password
   const resetPassword = async (email) => {
     try {
-      await sendPasswordResetEmail(auth, email);
-      toast.success("Password reset email sent! Check your inbox.", {
-        duration: 4500, // Longer duration for important message
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      await sendPasswordResetEmail(auth, email, {
+        url: window.location.origin + "/login",
+        handleCodeInApp: false,
       });
+
+      toast.success(
+        "Password reset email sent! Check your inbox and spam folder.",
+        {
+          duration: 5000, // Longer duration for important message
+        }
+      );
     } catch (error) {
       console.error("Reset password error:", error);
+
+      // Provide specific error messages
+      if (error.code === "auth/user-not-found") {
+        toast.error("No account found with this email address");
+      } else if (error.code === "auth/invalid-email") {
+        toast.error("Invalid email address");
+      } else if (error.code === "auth/too-many-requests") {
+        toast.error("Too many requests. Please try again later");
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to send reset email. Please try again");
+      }
+
       throw error;
     }
   };
@@ -121,7 +149,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.updateProfile(profileData);
       setUserProfile(response.data);
-      toast.success("Profile updated successfully");
       return response.data;
     } catch (error) {
       console.error("Update profile error:", error);
@@ -135,7 +162,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.getCurrentUser();
       setUserProfile(response.data);
     } catch (error) {
-      console.error("Fetch profile error:", error);
+      // Avoid spamming errors on rate limit
+      if (error.status !== 429) {
+        console.error("Fetch profile error:", error);
+      }
     }
   };
 
@@ -145,17 +175,21 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
 
       if (user) {
-        // Fetch user profile from database
-        await fetchUserProfile();
+        // Prevent rapid duplicate requests in dev StrictMode
+        if (profileFetchedForUid !== user.uid) {
+          await fetchUserProfile();
+          setProfileFetchedForUid(user.uid);
+        }
       } else {
         setUserProfile(null);
+        setProfileFetchedForUid(null);
       }
 
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [profileFetchedForUid]);
 
   const value = {
     currentUser,

@@ -40,7 +40,7 @@ const PostItem = () => {
     title: "",
     description: "",
     category: "",
-    date: "",
+    date: new Date().toISOString().split("T")[0],
     location: "",
   });
 
@@ -320,7 +320,9 @@ const PostItem = () => {
                 >
                   <span className="flex items-center space-x-2">
                     <FileText className="h-4 w-4" />
-                    <span>Title *</span>
+                    <span>
+                      Title <span className="text-red-500">*</span>
+                    </span>
                   </span>
                 </label>
                 <input
@@ -345,7 +347,7 @@ const PostItem = () => {
                   htmlFor="description"
                   className="block text-sm font-medium text-foreground mb-2"
                 >
-                  Description *
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="description"
@@ -373,7 +375,9 @@ const PostItem = () => {
                   >
                     <span className="flex items-center space-x-2">
                       <Tag className="h-4 w-4" />
-                      <span>Category *</span>
+                      <span>
+                        Category <span className="text-red-500">*</span>
+                      </span>
                     </span>
                   </label>
                   <select
@@ -402,7 +406,8 @@ const PostItem = () => {
                     <span className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4" />
                       <span>
-                        Date {postType === "lost" ? "Lost" : "Found"} *
+                        Date {postType === "lost" ? "Lost" : "Found"}{" "}
+                        <span className="text-red-500">*</span>
                       </span>
                     </span>
                   </label>
@@ -427,7 +432,9 @@ const PostItem = () => {
                 >
                   <span className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4" />
-                    <span>Location *</span>
+                    <span>
+                      Location <span className="text-red-500">*</span>
+                    </span>
                   </span>
                 </label>
                 <input
@@ -447,7 +454,9 @@ const PostItem = () => {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   <span className="flex items-center space-x-2">
                     <ImageIcon className="h-4 w-4" />
-                    <span>Images * (Maximum 5)</span>
+                    <span>
+                      Images <span className="text-red-500">*</span> (Maximum 5)
+                    </span>
                   </span>
                 </label>
 
@@ -503,7 +512,7 @@ const PostItem = () => {
               <div className="flex items-center justify-end space-x-4 pt-4 border-t border-border">
                 <button
                   type="button"
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/home")}
                   className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-smooth font-medium text-foreground"
                   disabled={loading}
                 >

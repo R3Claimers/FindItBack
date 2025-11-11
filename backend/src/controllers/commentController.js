@@ -85,6 +85,55 @@ class CommentController {
       next(error);
     }
   }
+
+  /**
+   * Update a comment
+   * PUT /api/v1/comments/:id
+   */
+  async updateComment(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+
+      if (!content || !content.trim()) {
+        return res.status(400).json({
+          status: "error",
+          message: "Comment content is required",
+        });
+      }
+
+      const comment = await Comment.findById(id);
+
+      if (!comment) {
+        return res.status(404).json({
+          status: "error",
+          message: "Comment not found",
+        });
+      }
+
+      // Check if user is the comment owner
+      if (comment.userId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          status: "error",
+          message: "You can only update your own comments",
+        });
+      }
+
+      comment.content = content.trim();
+      await comment.save();
+
+      // Populate user info
+      await comment.populate("userId", "name email profilePic");
+
+      res.status(200).json({
+        status: "success",
+        message: "Comment updated successfully",
+        data: comment,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new CommentController();

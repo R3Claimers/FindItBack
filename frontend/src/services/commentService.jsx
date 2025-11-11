@@ -22,4 +22,10 @@ export const commentService = {
     const response = await api.delete(`/comments/${commentId}`);
     return response.data;
   },
+
+  // Update a comment
+  updateComment: async (commentId, content) => {
+    const response = await api.put(`/comments/${commentId}`, { content });
+    return response.data;
+  },
 };

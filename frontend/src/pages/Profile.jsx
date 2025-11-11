@@ -19,6 +19,7 @@ import { authService } from "../services/authService.jsx";
 import { lostItemService } from "../services/lostItemService.jsx";
 import { foundItemService } from "../services/foundItemService.jsx";
 import ItemCard from "../components/ItemCard.jsx";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 import toast from "react-hot-toast";
 import { formatDate, getInitials } from "../utils/helpers.js";
 import {
@@ -35,6 +36,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [myPosts, setMyPosts] = useState({ lost: [], found: [] });
   const [postsLoading, setPostsLoading] = useState(false);
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   // Profile edit form
   const [profileForm, setProfileForm] = useState({
@@ -81,8 +86,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await authService.updateProfile(profileForm);
-      await updateUserProfile();
+      await updateUserProfile(profileForm);
       toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch (error) {
@@ -140,10 +144,11 @@ const Profile = () => {
     }
   };
 
-  const handleDeletePost = async (id, type) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
+  const handleDeletePost = async () => {
+    if (!postToDelete) return;
 
     try {
+      const { id, type } = postToDelete;
       if (type === "lost") {
         await lostItemService.deleteLostItem(id);
       } else {
@@ -154,7 +159,14 @@ const Profile = () => {
     } catch (error) {
       console.error("Error deleting post:", error);
       toast.error("Failed to delete post");
+    } finally {
+      setPostToDelete(null);
     }
+  };
+
+  const openDeleteModal = (id, type) => {
+    setPostToDelete({ id, type });
+    setShowDeleteModal(true);
   };
 
   const handleEditPost = (id, type) => {
@@ -175,17 +187,29 @@ const Profile = () => {
       </div>
 
       <div className="flex flex-col items-center mb-8">
-        {userProfile?.profilePic ? (
+        {userProfile?.profilePic || currentUser?.photoURL ? (
           <img
-            src={userProfile.profilePic}
-            alt={userProfile.name}
+            src={userProfile?.profilePic || currentUser?.photoURL}
+            alt={userProfile?.name || currentUser?.displayName || "Profile"}
             className="h-32 w-32 rounded-full object-cover border-4 border-primary"
+            onError={(e) => {
+              // If image fails to load, hide it and show initials
+              e.target.style.display = "none";
+              e.target.nextElementSibling.style.display = "flex";
+            }}
           />
-        ) : (
-          <div className="h-32 w-32 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-4xl font-bold">
-            {getInitials(userProfile?.name || currentUser?.displayName)}
-          </div>
-        )}
+        ) : null}
+        <div
+          className="h-32 w-32 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-4xl font-bold"
+          style={{
+            display:
+              userProfile?.profilePic || currentUser?.photoURL
+                ? "none"
+                : "flex",
+          }}
+        >
+          {getInitials(userProfile?.name || currentUser?.displayName || "User")}
+        </div>
         <h3 className="mt-4 text-2xl font-bold text-foreground">
           {profileForm.name}
         </h3>
@@ -432,7 +456,7 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myPosts.lost.map((item) => (
                   <div key={item._id} className="relative">
-                    <ItemCard item={item} type="lost" />
+                    <ItemCard item={item} type="lost" hidePostedBy />
                     {/* Action Buttons Overlay */}
                     <div className="absolute top-4 right-4 flex gap-2 z-10">
                       <button
@@ -443,7 +467,7 @@ const Profile = () => {
                         <Edit3 className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeletePost(item._id, "lost")}
+                        onClick={() => openDeleteModal(item._id, "lost")}
                         className="p-2 bg-destructive text-destructive-foreground rounded-full shadow-lg hover:opacity-90 transition-smooth"
                         title="Delete Post"
                       >
@@ -467,7 +491,7 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myPosts.found.map((item) => (
                   <div key={item._id} className="relative">
-                    <ItemCard item={item} type="found" />
+                    <ItemCard item={item} type="found" hidePostedBy />
                     {/* Action Buttons Overlay */}
                     <div className="absolute top-4 right-4 flex gap-2 z-10">
                       <button
@@ -478,7 +502,7 @@ const Profile = () => {
                         <Edit3 className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeletePost(item._id, "found")}
+                        onClick={() => openDeleteModal(item._id, "found")}
                         className="p-2 bg-destructive text-destructive-foreground rounded-full shadow-lg hover:opacity-90 transition-smooth"
                         title="Delete Post"
                       >
@@ -546,6 +570,21 @@ const Profile = () => {
         {activeTab === "password" && renderChangePassword()}
         {activeTab === "posts" && renderMyPosts()}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setPostToDelete(null);
+        }}
+        onConfirm={handleDeletePost}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+      />
     </div>
   );
 };

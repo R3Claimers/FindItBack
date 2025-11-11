@@ -36,7 +36,14 @@ export const getInitials = (name) => {
   if (!name) return "U";
   const trimmedName = name.trim();
   if (!trimmedName) return "U";
-  return trimmedName.charAt(0).toUpperCase();
+
+  // Split name by spaces and filter out empty strings
+  const nameParts = trimmedName.split(/\s+/).filter((part) => part.length > 0);
+
+  if (nameParts.length === 0) return "U";
+
+  // Get first letter of first name only
+  return nameParts[0].charAt(0).toUpperCase();
 };
 
 export const debounce = (func, wait) => {

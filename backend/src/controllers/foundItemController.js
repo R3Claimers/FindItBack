@@ -197,6 +197,37 @@ class FoundItemController {
   }
 
   /**
+   * Update found item status
+   * PATCH /api/v1/found-items/:id/status
+   */
+  async updateStatus(req, res, next) {
+    try {
+      const { status } = req.body;
+
+      if (!status || !["available", "claimed"].includes(status)) {
+        return res.status(400).json({
+          status: "error",
+          message: "Invalid status. Must be 'available' or 'claimed'",
+        });
+      }
+
+      const item = await foundItemService.updateStatus(
+        req.params.id,
+        req.user._id,
+        status
+      );
+
+      res.status(200).json({
+        status: "success",
+        message: `Found item status updated to ${status}`,
+        data: item,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Search found items
    * GET /api/v1/found-items/search
    */

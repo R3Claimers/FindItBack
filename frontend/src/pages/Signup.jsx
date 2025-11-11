@@ -34,7 +34,7 @@ const Signup = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (currentUser) {
-      navigate("/");
+      navigate("/home");
     }
   }, [currentUser, navigate]);
 
@@ -71,7 +71,7 @@ const Signup = () => {
     setLoading(true);
     try {
       await signup(formData.email, formData.password, formData.name);
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Signup error:", error);
       toast.error(getFirebaseErrorMessage(error));
@@ -84,7 +84,7 @@ const Signup = () => {
     setGoogleLoading(true);
     try {
       await loginWithGoogle();
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Google signup error:", error);
       toast.error(getFirebaseErrorMessage(error));

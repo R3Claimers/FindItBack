@@ -38,6 +38,10 @@ const userValidation = {
       .optional()
       .matches(/^\+?[\d\s-()]+$/)
       .withMessage("Please provide a valid phone number"),
+    body("bio")
+      .optional()
+      .isLength({ max: 500 })
+      .withMessage("Bio cannot exceed 500 characters"),
     handleValidation,
   ],
   update: [
@@ -53,6 +57,10 @@ const userValidation = {
       .optional()
       .isURL()
       .withMessage("Profile picture must be a valid URL"),
+    body("bio")
+      .optional()
+      .isLength({ max: 500 })
+      .withMessage("Bio cannot exceed 500 characters"),
     handleValidation,
   ],
 };
@@ -91,7 +99,13 @@ const lostItemValidation = {
       .notEmpty()
       .withMessage("Date lost is required")
       .isISO8601()
-      .withMessage("Date must be in valid format"),
+      .withMessage("Date must be in valid format")
+      .custom((value) => {
+        if (value && new Date(value) > new Date()) {
+          throw new Error("Date cannot be in the future");
+        }
+        return true;
+      }),
     body("location").notEmpty().withMessage("Location is required"),
     body("imageUrl").optional().isURL().withMessage("Image URL must be valid"),
     handleValidation,
@@ -122,7 +136,13 @@ const lostItemValidation = {
     body("dateLost")
       .optional()
       .isISO8601()
-      .withMessage("Date must be in valid format"),
+      .withMessage("Date must be in valid format")
+      .custom((value) => {
+        if (value && new Date(value) > new Date()) {
+          throw new Error("Date cannot be in the future");
+        }
+        return true;
+      }),
     body("location")
       .optional()
       .notEmpty()
@@ -170,7 +190,13 @@ const foundItemValidation = {
       .notEmpty()
       .withMessage("Date found is required")
       .isISO8601()
-      .withMessage("Date must be in valid format"),
+      .withMessage("Date must be in valid format")
+      .custom((value) => {
+        if (value && new Date(value) > new Date()) {
+          throw new Error("Date cannot be in the future");
+        }
+        return true;
+      }),
     body("location").notEmpty().withMessage("Location is required"),
     body("imageUrl").optional().isURL().withMessage("Image URL must be valid"),
     handleValidation,
@@ -201,7 +227,13 @@ const foundItemValidation = {
     body("dateFound")
       .optional()
       .isISO8601()
-      .withMessage("Date must be in valid format"),
+      .withMessage("Date must be in valid format")
+      .custom((value) => {
+        if (value && new Date(value) > new Date()) {
+          throw new Error("Date cannot be in the future");
+        }
+        return true;
+      }),
     body("location")
       .optional()
       .notEmpty()

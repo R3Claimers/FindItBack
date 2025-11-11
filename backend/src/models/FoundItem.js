@@ -66,6 +66,12 @@ const foundItemSchema = new mongoose.Schema(
         message: "Maximum 5 images allowed",
       },
     },
+    status: {
+      type: String,
+      enum: ["available", "claimed"],
+      default: "available",
+      index: true,
+    },
     isReturned: {
       type: Boolean,
       default: false,

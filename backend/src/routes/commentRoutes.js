@@ -12,6 +12,9 @@ router.post("/", commentController.addComment);
 // Get comments for an item
 router.get("/:itemId", commentController.getItemComments);
 
+// Update comment
+router.put("/:id", commentController.updateComment);
+
 // Delete comment
 router.delete("/:id", commentController.deleteComment);
 

@@ -130,6 +130,20 @@ class ItemService {
     }
   }
 
+  // Update lost item status
+  async updateLostItemStatus(id, status) {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/lost-items/${id}/status`,
+        { status },
+        await createAuthHeadersJson()
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Search lost items
   async searchLostItems(query) {
     try {
@@ -229,8 +243,22 @@ class ItemService {
   async resolveFoundItem(id) {
     try {
       const response = await axios.patch(
-        `${API_URL}/found-items/${id}/resolve`,
+        `${API_URL}/found-items/${id}/return`,
         {},
+        await createAuthHeadersJson()
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Update found item status
+  async updateFoundItemStatus(id, status) {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/found-items/${id}/status`,
+        { status },
         await createAuthHeadersJson()
       );
       return response.data;

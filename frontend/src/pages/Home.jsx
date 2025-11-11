@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search as SearchIcon, Package } from "lucide-react";
 import { lostItemService } from "../services/lostItemService.jsx";
@@ -10,7 +10,13 @@ const Home = () => {
   const [recentLostItems, setRecentLostItems] = useState([]);
   const [recentFoundItems, setRecentFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("lost");
+  const [showLostLeftFade, setShowLostLeftFade] = useState(false);
+  const [showLostRightFade, setShowLostRightFade] = useState(true);
+  const [showFoundLeftFade, setShowFoundLeftFade] = useState(false);
+  const [showFoundRightFade, setShowFoundRightFade] = useState(true);
+
+  const lostScrollRef = useRef(null);
+  const foundScrollRef = useRef(null);
 
   useEffect(() => {
     fetchRecentItems();
@@ -20,19 +26,51 @@ const Home = () => {
     try {
       setLoading(true);
       const [lostResponse, foundResponse] = await Promise.all([
-        lostItemService.getAllLostItems({ page: 1, limit: 6 }),
-        foundItemService.getAllFoundItems({ page: 1, limit: 6 }),
+        lostItemService.getAllLostItems({ page: 1, limit: 12 }),
+        foundItemService.getAllFoundItems({ page: 1, limit: 12 }),
       ]);
 
       setRecentLostItems(lostResponse.data || []);
       setRecentFoundItems(foundResponse.data || []);
     } catch (error) {
       console.error("Error fetching items:", error);
-      toast.error("Failed to load items");
+      // Don't show error toast for rate limiting
+      if (!error.message?.includes("429")) {
+        toast.error("Failed to load items");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleScroll = (scrollContainer, setShowLeft, setShowRight) => {
+    if (!scrollContainer) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+    const isAtStart = scrollLeft <= 10;
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10;
+
+    setShowLeft(!isAtStart);
+    setShowRight(!isAtEnd);
+  };
+
+  useEffect(() => {
+    // Check initial scroll positions after items load
+    if (lostScrollRef.current) {
+      handleScroll(
+        lostScrollRef.current,
+        setShowLostLeftFade,
+        setShowLostRightFade
+      );
+    }
+    if (foundScrollRef.current) {
+      handleScroll(
+        foundScrollRef.current,
+        setShowFoundLeftFade,
+        setShowFoundRightFade
+      );
+    }
+  }, [recentLostItems, recentFoundItems]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,82 +133,121 @@ const Home = () => {
 
       {/* Recent Items Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-foreground">Recent Items</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab("lost")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                activeTab === "lost"
-                  ? "bg-cyan-500 text-white shadow-md"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
+        {/* Lost Items */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-foreground">
+              Recent Lost Items
+            </h2>
+            <Link
+              to="/search"
+              className="text-primary hover:text-primary/80 transition-smooth text-sm font-medium"
             >
-              Lost Items
-            </button>
-            <button
-              onClick={() => setActiveTab("found")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                activeTab === "found"
-                  ? "bg-cyan-500 text-white shadow-md"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              Found Items
-            </button>
+              View All →
+            </Link>
           </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="spinner"></div>
+            </div>
+          ) : recentLostItems.length > 0 ? (
+            <div className="relative -mx-4">
+              {/* Left fade gradient */}
+              {showLostLeftFade && (
+                <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+              )}
+
+              {/* Right fade gradient */}
+              {showLostRightFade && (
+                <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+              )}
+
+              <div
+                ref={lostScrollRef}
+                onScroll={(e) =>
+                  handleScroll(
+                    e.target,
+                    setShowLostLeftFade,
+                    setShowLostRightFade
+                  )
+                }
+                className="overflow-x-auto pb-4 px-4 scrollbar-hide"
+              >
+                <div className="flex gap-6" style={{ minWidth: "min-content" }}>
+                  {recentLostItems.map((item) => (
+                    <div key={item._id} className="flex-none w-80">
+                      <ItemCard item={item} type="lost" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 card">
+              <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No lost items posted yet</p>
+            </div>
+          )}
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="spinner"></div>
+        {/* Found Items */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-foreground">
+              Recent Found Items
+            </h2>
+            <Link
+              to="/search"
+              className="text-primary hover:text-primary/80 transition-smooth text-sm font-medium"
+            >
+              View All →
+            </Link>
           </div>
-        ) : (
-          <>
-            {activeTab === "lost" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentLostItems.length > 0 ? (
-                  recentLostItems.map((item) => (
-                    <ItemCard key={item._id} item={item} type="lost" />
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      No lost items posted yet
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentFoundItems.length > 0 ? (
-                  recentFoundItems.map((item) => (
-                    <ItemCard key={item._id} item={item} type="found" />
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      No found items posted yet
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
 
-            <div className="text-center mt-12">
-              <Link
-                to="/search"
-                state={{ focusSearch: false }}
-                className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-teal-600 transition-all transform hover:scale-105 shadow-lg"
-              >
-                View All Items
-                <SearchIcon className="ml-2 h-5 w-5" />
-              </Link>
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="spinner"></div>
             </div>
-          </>
-        )}
+          ) : recentFoundItems.length > 0 ? (
+            <div className="relative -mx-4">
+              {/* Left fade gradient */}
+              {showFoundLeftFade && (
+                <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+              )}
+
+              {/* Right fade gradient */}
+              {showFoundRightFade && (
+                <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+              )}
+
+              <div
+                ref={foundScrollRef}
+                onScroll={(e) =>
+                  handleScroll(
+                    e.target,
+                    setShowFoundLeftFade,
+                    setShowFoundRightFade
+                  )
+                }
+                className="overflow-x-auto pb-4 px-4 scrollbar-hide"
+              >
+                <div className="flex gap-6" style={{ minWidth: "min-content" }}>
+                  {recentFoundItems.map((item) => (
+                    <div key={item._id} className="flex-none w-80">
+                      <ItemCard item={item} type="found" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 card">
+              <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No found items posted yet</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

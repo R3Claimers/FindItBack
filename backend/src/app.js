@@ -20,6 +20,7 @@ const lostItemRoutes = require("./routes/lostItemRoutes");
 const foundItemRoutes = require("./routes/foundItemRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -75,6 +76,7 @@ app.use(`${API_PREFIX}/lost-items`, lostItemRoutes);
 app.use(`${API_PREFIX}/found-items`, foundItemRoutes);
 app.use(`${API_PREFIX}/matches`, matchRoutes);
 app.use(`${API_PREFIX}/comments`, commentRoutes);
+app.use(`${API_PREFIX}/reports`, reportRoutes);
 
 // 404 handler
 app.use((req, res) => {
