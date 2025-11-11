@@ -39,4 +39,7 @@ router.delete("/:id", validateId, lostItemController.deleteLostItem);
 // Mark as resolved
 router.patch("/:id/resolve", validateId, lostItemController.markAsResolved);
 
+// Update status
+router.patch("/:id/status", validateId, lostItemController.updateStatus);
+
 module.exports = router;

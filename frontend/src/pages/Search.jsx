@@ -25,6 +25,9 @@ const Search = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [lostItems, setLostItems] = useState([]);
   const [foundItems, setFoundItems] = useState([]);
@@ -46,23 +49,26 @@ const Search = () => {
     try {
       setLoading(true);
       const [lostResponse, foundResponse] = await Promise.all([
-        lostItemService.getAllLostItems({ page: 1, limit: 100 }),
-        foundItemService.getAllFoundItems({ page: 1, limit: 100 }),
+        lostItemService.getAllLostItems({ page: 1, limit: 24 }),
+        foundItemService.getAllFoundItems({ page: 1, limit: 24 }),
       ]);
 
       setLostItems(lostResponse.data || []);
       setFoundItems(foundResponse.data || []);
     } catch (error) {
       console.error("Error fetching items:", error);
-      toast.error("Failed to load items");
+      // Suppress toast for rate limiting to avoid spam
+      if (error.status !== 429) {
+        toast.error("Failed to load items");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter items based on search query and category
+  // Filter items based on search query, category, and date range
   const filterItems = (items) => {
-    return items.filter((item) => {
+    let filtered = items.filter((item) => {
       const matchesSearch =
         searchQuery === "" ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -72,8 +78,26 @@ const Search = () => {
       const matchesCategory =
         selectedCategory === "All" || item.category === selectedCategory;
 
-      return matchesSearch && matchesCategory;
+      // Date filtering
+      const itemDate = new Date(item.dateLost || item.dateFound);
+      const matchesDateFrom = !dateFrom || itemDate >= new Date(dateFrom);
+      const matchesDateTo = !dateTo || itemDate <= new Date(dateTo);
+
+      return (
+        matchesSearch && matchesCategory && matchesDateFrom && matchesDateTo
+      );
     });
+
+    // Sort items
+    if (sortBy === "newest") {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy === "oldest") {
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } else if (sortBy === "recent-activity") {
+      filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+
+    return filtered;
   };
 
   const getDisplayItems = () => {
@@ -118,7 +142,7 @@ const Search = () => {
 
         {/* Filters */}
         <div className="mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div className="flex flex-col gap-4">
             {/* Tab Filters */}
             <div className="flex gap-2">
               <button
@@ -153,20 +177,77 @@ const Search = () => {
               </button>
             </div>
 
-            {/* Category Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-muted-foreground" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-              >
-                {CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+            {/* Category, Date, and Sort Filters */}
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Category Filter */}
+              <div className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-muted-foreground" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                >
+                  {CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Date From */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-muted-foreground">From:</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              {/* Date To */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-muted-foreground">To:</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              {/* Sort By */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-muted-foreground">Sort:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="recent-activity">Recent Activity</option>
+                </select>
+              </div>
+
+              {/* Clear Filters Button */}
+              {(dateFrom ||
+                dateTo ||
+                selectedCategory !== "All" ||
+                sortBy !== "newest") && (
+                <button
+                  onClick={() => {
+                    setDateFrom("");
+                    setDateTo("");
+                    setSelectedCategory("All");
+                    setSortBy("newest");
+                  }}
+                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-smooth"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           </div>
         </div>

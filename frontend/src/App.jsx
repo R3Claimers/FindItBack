@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Navbar from "./components/Navbar.jsx";
 
 // Pages
+import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Home from "./pages/Home.jsx";
@@ -27,7 +28,25 @@ import EditPost from "./pages/EditPost.jsx";
 
 function AppContent() {
   const location = useLocation();
-  const isAuthPage = ["/login", "/signup"].includes(location.pathname);
+  const isAuthPage = ["/", "/login", "/signup"].includes(location.pathname);
+  const scrollPositions = useRef({});
+  const previousPath = useRef(location.pathname);
+
+  useEffect(() => {
+    // Save scroll position when leaving a page
+    scrollPositions.current[previousPath.current] = window.scrollY;
+
+    // Restore scroll position if returning to a page, otherwise scroll to top
+    const savedPosition = scrollPositions.current[location.pathname];
+    if (savedPosition !== undefined) {
+      // Small delay to ensure content is rendered
+      setTimeout(() => window.scrollTo(0, savedPosition), 0);
+    } else {
+      window.scrollTo(0, 0);
+    }
+
+    previousPath.current = location.pathname;
+  }, [location.pathname]);
 
   return (
     <>
@@ -79,12 +98,13 @@ function AppContent() {
         {!isAuthPage && <Navbar />}
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
           {/* Protected Routes */}
           <Route
-            path="/"
+            path="/home"
             element={
               <ProtectedRoute>
                 <Home />
@@ -148,8 +168,8 @@ function AppContent() {
             }
           />
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Catch all - redirect to landing or home based on auth */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </>

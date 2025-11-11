@@ -43,4 +43,7 @@ router.delete("/:id", validateId, foundItemController.deleteFoundItem);
 // Mark as returned
 router.patch("/:id/return", validateId, foundItemController.markAsReturned);
 
+// Update status
+router.patch("/:id/status", validateId, foundItemController.updateStatus);
+
 module.exports = router;

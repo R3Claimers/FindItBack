@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 
-const ImageGallery = ({ images = [], altText = "Item image" }) => {
+const ImageGallery = ({
+  images = [],
+  altText = "Item image",
+  itemType = null,
+}) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -91,6 +95,20 @@ const ImageGallery = ({ images = [], altText = "Item image" }) => {
               className="max-w-full max-h-full object-contain cursor-pointer transition-smooth hover:opacity-95"
               onClick={() => openLightbox(selectedIndex)}
             />
+            {/* Lost/Found Badge Overlay */}
+            {itemType && (
+              <div className="absolute top-4 left-4">
+                <span
+                  className={`badge backdrop-blur-sm border border-white/20 shadow-lg ${
+                    itemType === "lost"
+                      ? "bg-orange-500/90 text-white"
+                      : "bg-green-500/90 text-white"
+                  }`}
+                >
+                  {itemType === "lost" ? "Lost" : "Found"}
+                </span>
+              </div>
+            )}
           </div>
           {validImages.length > 1 && (
             <>

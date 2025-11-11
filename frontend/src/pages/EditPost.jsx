@@ -25,20 +25,33 @@ const EditPost = () => {
   const [newImages, setNewImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
 
+  // Categories must match backend enum exactly
   const categories = [
     "Electronics",
     "Documents",
-    "Accessories",
-    "Clothing",
-    "Bags",
     "Keys",
+    "Bags",
+    "Wallets",
+    "Jewelry",
+    "Clothing",
     "Pets",
-    "Others",
+    "Other",
   ];
 
   useEffect(() => {
     fetchPostDetails();
   }, [id, type]);
+
+  // If a successful edit just happened, prevent navigating back to this form
+  useEffect(() => {
+    const key = `edited:${type}:${id}`;
+    if (sessionStorage.getItem(key)) {
+      // Redirect to detail page and replace history so back won't return here
+      navigate(`/${type === "lost" ? "lost" : "found"}/${id}`, {
+        replace: true,
+      });
+    }
+  }, [id, type, navigate]);
 
   const fetchPostDetails = async () => {
     try {
@@ -54,7 +67,15 @@ const EditPost = () => {
         description: item.description || "",
         category: item.category || "",
         location: item.location || "",
-        date: item.date ? new Date(item.date).toISOString().split("T")[0] : "",
+        // Use correct date field from backend
+        date:
+          type === "lost"
+            ? item.dateLost
+              ? new Date(item.dateLost).toISOString().split("T")[0]
+              : ""
+            : item.dateFound
+            ? new Date(item.dateFound).toISOString().split("T")[0]
+            : "",
         contactInfo: item.contactInfo || "",
         images: item.images || [],
       });
@@ -119,12 +140,18 @@ const EditPost = () => {
       submitData.append("description", formData.description);
       submitData.append("category", formData.category);
       submitData.append("location", formData.location);
-      submitData.append("date", formData.date);
+      // Map correct date field name expected by backend
+      if (type === "lost") {
+        submitData.append("dateLost", formData.date);
+      } else {
+        submitData.append("dateFound", formData.date);
+      }
       submitData.append("contactInfo", formData.contactInfo);
 
       // Add existing images that weren't removed
       existingImages.forEach((img) => {
-        submitData.append("existingImages[]", img);
+        // Append with the exact field name backend expects; repeating same key is fine
+        submitData.append("existingImages", img);
       });
 
       // Add new images
@@ -139,7 +166,14 @@ const EditPost = () => {
       );
 
       toast.success("Post updated successfully!");
-      navigate(`/${type === "lost" ? "lost" : "found"}/${id}`);
+      // Mark this post as edited to guard against back navigation showing stale form
+      try {
+        sessionStorage.setItem(`edited:${type}:${id}`, "1");
+      } catch {}
+      // Replace history so Back doesn't return to edit form
+      navigate(`/${type === "lost" ? "lost" : "found"}/${id}`, {
+        replace: true,
+      });
     } catch (error) {
       console.error("Error updating post:", error);
       toast.error(error.response?.data?.message || "Failed to update post");
@@ -176,7 +210,7 @@ const EditPost = () => {
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Title *
+                Title <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -193,7 +227,7 @@ const EditPost = () => {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Description *
+                Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={formData.description}
@@ -211,7 +245,7 @@ const EditPost = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Category *
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.category}
@@ -232,7 +266,7 @@ const EditPost = () => {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Location *
+                  Location <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -251,7 +285,7 @@ const EditPost = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Date *
+                  Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -259,6 +293,7 @@ const EditPost = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, date: e.target.value })
                   }
+                  max={new Date().toISOString().split("T")[0]}
                   className="w-full px-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                   required
                 />
@@ -266,7 +301,7 @@ const EditPost = () => {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Contact Info *
+                  Contact Info
                 </label>
                 <input
                   type="text"
@@ -275,8 +310,7 @@ const EditPost = () => {
                     setFormData({ ...formData, contactInfo: e.target.value })
                   }
                   className="w-full px-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-                  placeholder="Phone or email"
-                  required
+                  placeholder="Phone or email (optional)"
                 />
               </div>
             </div>

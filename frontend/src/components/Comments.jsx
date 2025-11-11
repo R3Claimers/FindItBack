@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { commentService } from "../services/commentService.jsx";
-import { MessageCircle, Send, Trash2, Loader2 } from "lucide-react";
+import ConfirmModal from "./ConfirmModal.jsx";
+import {
+  MessageCircle,
+  Send,
+  Trash2,
+  Edit2,
+  Check,
+  X,
+  Loader2,
+} from "lucide-react";
 import { formatRelativeTime, getInitials } from "../utils/helpers.js";
 import toast from "react-hot-toast";
 
 const Comments = ({ itemId, itemType }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   useEffect(() => {
     fetchComments();
@@ -21,6 +34,15 @@ const Comments = ({ itemId, itemType }) => {
       setLoading(true);
       const response = await commentService.getComments(itemId);
       setComments(response.data || []);
+
+      // Debug logging
+      console.log("Current User UID:", currentUser?.uid);
+      if (response.data && response.data.length > 0) {
+        console.log(
+          "Sample Comment User ID:",
+          response.data[0].userId?._id || response.data[0].userId
+        );
+      }
     } catch (error) {
       console.error("Error fetching comments:", error);
       toast.error("Failed to load comments");
@@ -55,17 +77,58 @@ const Comments = ({ itemId, itemType }) => {
     }
   };
 
-  const handleDelete = async (commentId) => {
-    if (!window.confirm("Are you sure you want to delete this comment?"))
-      return;
+  const handleDelete = async () => {
+    if (!commentToDelete) return;
 
     try {
-      await commentService.deleteComment(commentId);
-      setComments(comments.filter((c) => c._id !== commentId));
+      await commentService.deleteComment(commentToDelete);
+      setComments(comments.filter((c) => c._id !== commentToDelete));
       toast.success("Comment deleted!");
     } catch (error) {
       console.error("Error deleting comment:", error);
       toast.error("Failed to delete comment");
+    } finally {
+      setCommentToDelete(null);
+    }
+  };
+
+  const openDeleteModal = (commentId) => {
+    setCommentToDelete(commentId);
+    setShowDeleteModal(true);
+  };
+
+  const handleEdit = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditContent(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditContent("");
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editContent.trim()) {
+      toast.error("Comment cannot be empty");
+      return;
+    }
+
+    try {
+      const response = await commentService.updateComment(
+        commentId,
+        editContent.trim()
+      );
+      setComments(
+        comments.map((c) =>
+          c._id === commentId ? { ...c, content: editContent.trim() } : c
+        )
+      );
+      setEditingCommentId(null);
+      setEditContent("");
+      toast.success("Comment updated!");
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      toast.error("Failed to update comment");
     }
   };
 
@@ -130,7 +193,7 @@ const Comments = ({ itemId, itemType }) => {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold">
-                    {getInitials(comment.userId?.name)}
+                    {getInitials(comment.userId?.name || "User")}
                   </div>
                 )}
               </div>
@@ -146,17 +209,66 @@ const Comments = ({ itemId, itemType }) => {
                       {formatRelativeTime(comment.createdAt)}
                     </p>
                   </div>
-                  {comment.userId?._id === currentUser?.uid && (
-                    <button
-                      onClick={() => handleDelete(comment._id)}
-                      className="p-1 text-destructive hover:bg-destructive/10 rounded transition-smooth"
-                      title="Delete comment"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                  {(comment.userId?._id === userProfile?._id ||
+                    comment.userId === userProfile?._id) && (
+                    <div className="flex gap-1">
+                      {editingCommentId === comment._id ? (
+                        <>
+                          <button
+                            onClick={() => handleSaveEdit(comment._id)}
+                            className="p-1 text-green-600 hover:bg-green-600/10 rounded transition-smooth"
+                            title="Save changes"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="p-1 text-muted-foreground hover:bg-muted rounded transition-smooth"
+                            title="Cancel"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(comment)}
+                            className="p-1 text-primary hover:bg-primary/10 rounded transition-smooth"
+                            title="Edit comment"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(comment._id)}
+                            className="p-1 text-destructive hover:bg-destructive/10 rounded transition-smooth"
+                            title="Delete comment"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
-                <p className="text-foreground break-words">{comment.content}</p>
+                {editingCommentId === comment._id ? (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="w-full px-3 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      maxLength={500}
+                      autoFocus
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {editContent.length}/500 characters
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-foreground break-words">
+                    {comment.content}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -169,6 +281,21 @@ const Comments = ({ itemId, itemType }) => {
           </p>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCommentToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+      />
     </div>
   );
 };

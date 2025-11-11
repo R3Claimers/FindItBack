@@ -15,18 +15,27 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { itemService } from "../services/itemService.jsx";
+import reportService from "../services/reportService.jsx";
 import ImageGallery from "../components/ImageGallery.jsx";
 import Comments from "../components/Comments.jsx";
+import ConfirmModal from "../components/ConfirmModal.jsx";
+import ReportModal from "../components/ReportModal.jsx";
 import toast from "react-hot-toast";
 
 const FoundItemDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [resolving, setResolving] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   useEffect(() => {
     fetchItemDetail();
@@ -40,20 +49,18 @@ const FoundItemDetail = () => {
     } catch (error) {
       console.error("Error fetching item:", error);
       toast.error("Failed to load item details");
-      navigate("/");
+      navigate("/home");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-
     try {
       setDeleting(true);
       await itemService.deleteFoundItem(id);
       toast.success("Item deleted successfully");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Error deleting item:", error);
       toast.error("Failed to delete item");
@@ -63,8 +70,6 @@ const FoundItemDetail = () => {
   };
 
   const handleResolve = async () => {
-    if (!window.confirm("Mark this item as returned to owner?")) return;
-
     try {
       setResolving(true);
       await itemService.resolveFoundItem(id);
@@ -75,6 +80,34 @@ const FoundItemDetail = () => {
       toast.error("Failed to resolve item");
     } finally {
       setResolving(false);
+    }
+  };
+
+  const handleReport = async (reportData) => {
+    try {
+      await reportService.createReport("FoundItem", id, reportData);
+      toast.success("Report submitted successfully");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      if (error.message === "You have already reported this item") {
+        toast.error("You have already reported this item");
+      } else {
+        toast.error("Failed to submit report");
+      }
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    try {
+      setUpdatingStatus(true);
+      await itemService.updateFoundItemStatus(id, newStatus);
+      toast.success(`Status updated to ${newStatus}`);
+      fetchItemDetail(); // Refresh data
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
@@ -101,7 +134,9 @@ const FoundItemDetail = () => {
     return badges[category] || badges.Other;
   };
 
-  const isOwner = currentUser && item?.userId?._id === currentUser.uid;
+  const isOwner =
+    (userProfile && item?.userId?._id === userProfile?._id) ||
+    (userProfile && item?.userId === userProfile?._id);
 
   if (loading) {
     return (
@@ -123,7 +158,7 @@ const FoundItemDetail = () => {
             The item you're looking for doesn't exist or has been removed.
           </p>
           <Link
-            to="/"
+            to="/home"
             className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-smooth"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
@@ -154,6 +189,7 @@ const FoundItemDetail = () => {
               <ImageGallery
                 images={item.images || (item.imageUrl ? [item.imageUrl] : [])}
                 altText={item.title}
+                itemType="found"
               />
             </div>
 
@@ -161,7 +197,7 @@ const FoundItemDetail = () => {
             <div className="card">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
                     <span
                       className={`badge ${getCategoryBadgeClass(
                         item.category
@@ -215,34 +251,55 @@ const FoundItemDetail = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Owner Actions */}
-            {isOwner && !item.isReturned && (
+            {isOwner && (
               <div className="card space-y-3">
                 <h3 className="font-semibold text-foreground mb-3">
                   Manage Item
                 </h3>
+
+                {/* Status Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={
+                      item.status || (item.isReturned ? "claimed" : "available")
+                    }
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={updatingStatus}
+                    className="w-full px-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="available">Available</option>
+                    <option value="claimed">Claimed</option>
+                  </select>
+                </div>
+
+                {!item.isReturned && (
+                  <button
+                    onClick={() => setShowResolveModal(true)}
+                    disabled={resolving}
+                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/30 hover:bg-green-500/20 rounded-lg transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {resolving ? (
+                      <div className="spinner-small mr-2"></div>
+                    ) : (
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                    )}
+                    Mark as Returned
+                  </button>
+                )}
                 <button
-                  onClick={handleResolve}
-                  disabled={resolving}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resolving ? (
-                    <div className="spinner-small mr-2"></div>
-                  ) : (
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                  )}
-                  Mark as Returned
-                </button>
-                <button
-                  onClick={() => navigate(`/found/${id}/edit`)}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg transition-smooth"
+                  onClick={() => navigate(`/edit/found/${id}`)}
+                  className="w-full inline-flex items-center justify-center px-4 py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 rounded-lg transition-smooth"
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Item
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={() => setShowDeleteModal(true)}
                   disabled={deleting}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/20 rounded-lg transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {deleting ? (
                     <div className="spinner-small mr-2"></div>
@@ -309,7 +366,10 @@ const FoundItemDetail = () => {
             {/* Report/Flag (for non-owners) */}
             {!isOwner && (
               <div className="card">
-                <button className="w-full text-sm text-muted-foreground hover:text-destructive transition-smooth">
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="w-full text-sm text-muted-foreground hover:text-destructive transition-smooth"
+                >
                   <AlertCircle className="inline-block mr-2 h-4 w-4" />
                   Report this post
                 </button>
@@ -323,6 +383,36 @@ const FoundItemDetail = () => {
           <Comments itemId={id} itemType="FoundItem" />
         </div>
       </div>
+
+      {/* Modals */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Delete Found Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+      />
+
+      <ConfirmModal
+        isOpen={showResolveModal}
+        onClose={() => setShowResolveModal(false)}
+        onConfirm={handleResolve}
+        title="Mark as Returned"
+        message="Mark this item as returned to owner? This will update the status accordingly."
+        confirmText="Mark as Returned"
+        cancelText="Cancel"
+        confirmVariant="primary"
+      />
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onSubmit={handleReport}
+        itemType="found"
+      />
     </div>
   );
 };

@@ -7,7 +7,7 @@ class UserController {
    */
   async createOrUpdateUser(req, res, next) {
     try {
-      const { uid, name, email, phone, profilePic } = req.body;
+      const { uid, name, email, phone, profilePic, bio } = req.body;
 
       const result = await userService.createOrUpdateUser({
         uid,
@@ -15,6 +15,7 @@ class UserController {
         email,
         phone,
         profilePic,
+        bio,
       });
 
       res.status(result.isNew ? 201 : 200).json({
@@ -69,12 +70,13 @@ class UserController {
    */
   async updateCurrentUser(req, res, next) {
     try {
-      const { name, phone, profilePic } = req.body;
+      const { name, phone, profilePic, bio } = req.body;
 
       const user = await userService.updateUser(req.uid, {
         name,
         phone,
         profilePic,
+        bio,
       });
 
       res.status(200).json({

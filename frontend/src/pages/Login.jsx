@@ -30,7 +30,7 @@ const Login = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (currentUser) {
-      navigate("/");
+      navigate("/home");
     }
   }, [currentUser, navigate]);
 
@@ -45,7 +45,7 @@ const Login = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Login error:", error);
       toast.error(getFirebaseErrorMessage(error));
@@ -58,7 +58,7 @@ const Login = () => {
     setGoogleLoading(true);
     try {
       await loginWithGoogle();
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Google login error:", error);
       toast.error(getFirebaseErrorMessage(error));
@@ -75,14 +75,21 @@ const Login = () => {
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
     try {
       await resetPassword(resetEmail);
       setShowForgotPassword(false);
       setResetEmail("");
     } catch (error) {
+      // Error handling is done in AuthContext
       console.error("Reset password error:", error);
-      toast.error(getFirebaseErrorMessage(error));
     } finally {
       setLoading(false);
     }

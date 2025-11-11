@@ -102,6 +102,29 @@ class FoundItemService {
     try {
       const item = await foundItemRepository.update(id, userId, {
         isReturned: true,
+        status: "claimed",
+      });
+
+      if (!item) {
+        throw new Error(
+          "Found item not found or you are not authorized to update it"
+        );
+      }
+
+      return item;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Update found item status
+   */
+  async updateStatus(id, userId, status) {
+    try {
+      const item = await foundItemRepository.update(id, userId, {
+        status,
+        isReturned: status === "claimed",
       });
 
       if (!item) {

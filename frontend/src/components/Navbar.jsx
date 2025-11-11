@@ -41,7 +41,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3">
+            <Link
+              to={currentUser ? "/home" : "/"}
+              className="flex items-center space-x-3"
+            >
               <img
                 src="/logo.png"
                 alt="FindItBack Logo"
@@ -66,9 +69,9 @@ const Navbar = () => {
           {currentUser && (
             <div className="hidden md:flex items-center justify-center flex-1 space-x-2">
               <Link
-                to="/"
+                to="/home"
                 className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-smooth ${
-                  isActive("/")
+                  isActive("/home")
                     ? "text-primary bg-primary/10"
                     : "text-foreground hover:text-primary hover:bg-muted"
                 }`}
@@ -113,19 +116,32 @@ const Navbar = () => {
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                   className="flex items-center space-x-2 focus:outline-none"
                 >
-                  {userProfile?.profilePic ? (
+                  {userProfile?.profilePic || currentUser?.photoURL ? (
                     <img
-                      src={userProfile.profilePic}
+                      src={userProfile?.profilePic || currentUser?.photoURL}
                       alt="Profile"
                       className="h-10 w-10 rounded-full object-cover border-2 border-primary"
+                      onError={(e) => {
+                        // If image fails to load, hide it and show initials instead
+                        e.target.style.display = "none";
+                        const initialsDiv = e.target.nextElementSibling;
+                        if (initialsDiv) initialsDiv.style.display = "flex";
+                      }}
                     />
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                      {getInitials(
-                        userProfile?.name || currentUser?.displayName
-                      )}
-                    </div>
-                  )}
+                  ) : null}
+                  <div
+                    className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold"
+                    style={{
+                      display:
+                        userProfile?.profilePic || currentUser?.photoURL
+                          ? "none"
+                          : "flex",
+                    }}
+                  >
+                    {getInitials(
+                      userProfile?.name || currentUser?.displayName || "User"
+                    )}
+                  </div>
                 </button>
 
                 {profileMenuOpen && (
@@ -185,9 +201,9 @@ const Navbar = () => {
         <div className="md:hidden bg-card border-t border-border animate-fadeIn">
           <div className="px-4 py-3 space-y-2">
             <Link
-              to="/"
+              to="/home"
               className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-smooth ${
-                isActive("/")
+                isActive("/home")
                   ? "text-primary bg-primary/10"
                   : "text-foreground hover:bg-muted"
               }`}

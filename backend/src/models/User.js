@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Bio cannot exceed 500 characters"],
+      default: "",
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -58,6 +64,7 @@ userSchema.methods.getPublicProfile = function () {
     email: this.email,
     phone: this.phone,
     profilePic: this.profilePic,
+    bio: this.bio,
     createdAt: this.createdAt,
   };
 };
