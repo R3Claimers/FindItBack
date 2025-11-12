@@ -1,6 +1,6 @@
 # 🧭 FindItBack - Lost & Found Platform
 
-A comprehensive web-based Lost and Found management system built with the **MERN Stack** (MongoDB, Express, React, Node.js), **Firebase Authentication**, and **Cloudinary** for image storage. The platform helps users post lost or found items and uses an intelligent matching algorithm to suggest potential matches.
+A comprehensive web-based Lost and Found management system built with the **MERN Stack** (MongoDB, Express, React, Node.js), **Firebase Authentication**, and **Cloudinary** for image storage. The platform helps users post lost or found items, comment, search, filter, and manage their posts securely.
 
 ## ✨ Features
 
@@ -9,63 +9,86 @@ A comprehensive web-based Lost and Found management system built with the **MERN
 - **Email/Password** authentication with Firebase
 - **Google Sign-In** integration
 - Secure Firebase Auth with JWT tokens
-- **Change Password** functionality
+- **Change Password** functionality with re-authentication
 - Protected routes with unauthorized access warnings
+- Persistent authentication state across sessions
 
 ### 📦 Item Management
 
-- **Post Lost Items** with details (title, description, category, location, date, images)
-- **Post Found Items** with comprehensive details
-- **Edit & Delete** your own posts
-- **Mark items** as resolved/returned
+- **Post Lost Items** with comprehensive details (title, description, category, location, date, images)
+- **Post Found Items** with all relevant information
+- **Edit & Delete** your own posts with confirmation modals
+- **Mark items** as found/returned with status updates
 - **Image Upload** to Cloudinary (max 5 images, 5MB each, auto-resize to 1000x1000)
-- **Multiple image support** with preview
+- **Multiple image support** with gallery preview and navigation
+- **Optional images** for lost items, required for found items
+- **Category badges** with color-coded classification
+- **Status indicators** (Open, Found, Available, Returned)
+- **Date picker** with current date validation
 
 ### 💬 Comments System
 
 - **Add comments** on any lost/found post
-- **Delete your own comments**
-- **User avatars** with initials
+- **Delete your own comments** with confirmation
+- **User avatars** with initials fallback
 - **Relative timestamps** (e.g., "2 hours ago")
 - **Character limit** (500 characters)
+- **Real-time updates** with optimistic UI
+- **Responsive comment cards** with proper spacing
 
 ### 🔍 Search & Filter
 
-- **Global Search** across all items
-- **Advanced Filters**: Category, Location, Date range, Status
-- **Tab-based view** (All, Lost Items, Found Items)
-- **Pagination** for performance
-- **Real-time Results**
+- **Global Search** across all items by title, description, or location
+- **Collapsible Advanced Filters** to save space:
+  - Category filter (All, Electronics, Documents, Keys, Bags, Wallets, Jewelry, Clothing, Pets, Other)
+  - Date range filters (From/To)
+  - Sort options (Newest First, Oldest First, Recent Activity)
+- **Tab-based view** (All Items, Lost, Found) with item counts
+- **Active filter indicator** badge
+- **Clear all filters** button
+- **Responsive filter panel** (stacks vertically on mobile)
+- **Real-time Results** with instant filtering
 
 ### 👤 User Profile
 
 - **Profile Management**: View/Edit name, phone, bio
-- **Change Password** with re-authentication
-- **My Posts Section**: View all your lost and found items
+- **Change Password** with secure re-authentication
+- **My Posts Section**: Tabbed view of your lost and found items
 - **Edit/Delete Posts** directly from profile
+- **Responsive profile cards**
 
-### 🎯 Smart Matching Algorithm
+### 🧪 Matches (Planned / Under Development)
 
-- **AI-Powered Matching** between lost and found items
-- **Multi-Factor Scoring**:
-  - Category match (30%)
-  - Location similarity (25%)
-  - Date proximity (20%)
-  - Title similarity (15%)
-  - Description similarity (10%)
-- **Customizable** minimum match score
-- **Detailed Match Breakdown** for transparency
+The matches feature is currently under development. A placeholder page exists, but scoring, automated suggestions, and match notifications are not yet active in the UI.
 
-### 🎨 Beautiful UI
+### 🚨 Reporting System
 
-- **Modern Design** with Cyan/Teal & gradient theme
-- **Dark Mode** support with theme toggle
-- **Responsive** across all devices
-- **Smooth Animations** and animated gradient flares
-- **Intuitive Navigation** (Home, Posts, Post Item, Profile)
-- **Toast Notifications** for user feedback
-- **Loading Overlays** to prevent duplicate submissions
-- **HSL-based Design System** for consistency
+- **Report inappropriate posts** with predefined reasons
+- **Report categories**: Spam, Inappropriate Content, Fraud/Scam, Duplicate Post, Other
+- **Additional details** text field for context
+- **Backend tracking** of reported items
+- **Modal-based reporting UI**
+
+### 🎨 Beautiful UI/UX
+
+- **Modern Design** with Cyan/Teal gradient theme
+- **Dark Mode** support with persistent theme toggle
+- **Fully Responsive** design across all devices (mobile-first approach)
+- **Smooth Animations** and transitions
+- **Animated gradient backgrounds** with flare effects
+- **Intuitive Navigation** with active route highlighting
+- **Toast Notifications** for all user actions
+- **Loading States** with spinners and overlays
+- **Confirmation Modals** for destructive actions
+- **HSL-based Color System** for consistent theming
+- **Mobile-optimized layouts**:
+  - Collapsible navbar menu
+  - Hidden brand text on small screens (landing page)
+  - Responsive text sizes
+  - Touch-friendly buttons
+  - Optimized filter panels
+- **Image Gallery** with lightbox functionality
+- **Lazy loading** and performance optimizations
 
 ## 🏗️ Architecture
 
@@ -280,36 +303,63 @@ Authorization: Bearer <firebase-id-token>
 - `GET /matches/lost/:id` - Matches for specific lost item
 - `GET /matches/found/:id` - Matches for specific found item
 
+#### Reports
+
+- `POST /reports` - Report a post (lost or found item)
+- `GET /reports` - Get all reports (admin)
+- `GET /reports/:id` - Get report by ID
+- `PATCH /reports/:id/status` - Update report status
+
 ## 🎨 Tech Stack
 
 ### Frontend
 
-- **React** 18 - UI library
-- **Vite** 5 - Build tool (⚡ Lightning fast!)
-- **React Router** v6 - Routing
-- **Tailwind CSS** - Styling with custom HSL theme
-- **Firebase** - Authentication
-- **Cloudinary** - Image storage (via backend)
-- **Axios** - HTTP client
-- **React Hot Toast** - Notifications
-- **Lucide React** - Icons
-- **date-fns** - Date formatting
+- **React** 18 - UI library with hooks
+- **Vite** 5 - Build tool (⚡ Lightning fast HMR!)
+- **React Router** v6 - Client-side routing with protected routes
+- **Tailwind CSS** 3 - Utility-first CSS with custom HSL theme
+- **Firebase** 10 - Authentication (Email/Password, Google Sign-In)
+- **Axios** - HTTP client with interceptors
+- **React Hot Toast** - Beautiful toast notifications
+- **Lucide React** - Modern icon library (500+ icons)
+- **date-fns** - Lightweight date formatting and manipulation
+- **Context API** - State management (Auth, Theme, Loading)
+- **PostCSS** - CSS processing with autoprefixer
+- **ESLint** - Code linting and quality checks
 
 ### Backend
 
-- **Node.js** - Runtime
-- **Express** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - ODM
-- **Firebase Admin** - Auth verification
-- **Cloudinary** - Image upload/storage
-- **Multer** - File upload middleware
-- **Express Validator** - Input validation
-- **Helmet** - Security headers
-- **CORS** - Cross-origin requests
-- **Morgan** - HTTP logger
-- **Compression** - Response compression
-- **Rate Limiting** - API protection
+- **Node.js** 18+ - JavaScript runtime
+- **Express** 4 - Fast web framework with middleware support
+- **MongoDB** 6+ - NoSQL database
+- **Mongoose** 8 - ODM with schema validation
+- **Firebase Admin SDK** - Server-side auth verification
+- **Cloudinary SDK** - Image upload, storage, and transformation
+- **Multer** - Multipart/form-data file upload
+- **Express Validator** - Request validation middleware
+- **Helmet** - Security headers middleware
+- **CORS** - Cross-origin resource sharing
+- **Morgan** - HTTP request logger
+- **Compression** - Response compression (gzip)
+- **Express Rate Limit** - API rate limiting protection
+- **dotenv** - Environment variable management
+- **Nodemon** - Auto-restart during development
+
+### Database Models
+
+- **User** - Profile information, authentication data
+- **LostItem** - Lost item posts with images and location
+- **FoundItem** - Found item posts with details
+- **Comment** - User comments on posts
+- **Report** - Reported posts with reason and status
+
+### Development Tools
+
+- **VS Code** - Recommended IDE
+- **Git** - Version control
+- **npm** - Package manager
+- **Postman** - API testing
+- **MongoDB Compass** - Database GUI
 
 ## 🧪 Testing
 
@@ -343,86 +393,214 @@ npm test
 
 Already cloud-hosted ✅
 
-## ⚡ Performance
+## ⚡ Performance & Optimization
 
 ### Development Speed
 
-- **Vite Dev Server**: Starts in <1 second
-- **Hot Module Replacement**: <100ms updates
-- **Build Time**: ~20 seconds (3x faster than CRA)
+- **Vite Dev Server**: Starts in <1 second with ES modules
+- **Hot Module Replacement (HMR)**: <100ms instant updates
+- **Build Time**: ~20 seconds (3x faster than Create React App)
+- **Code Splitting**: Automatic route-based splitting
+
+### Production Optimizations
+
+- **Image Optimization**: Cloudinary auto-resize to 1000x1000, maintains aspect ratio
+- **Lazy Loading**: Images and routes loaded on demand
+- **Response Compression**: gzip compression on API responses
+- **Database Indexing**: Optimized queries with indexes on frequently searched fields
+- **Caching**: Static assets cached with proper headers
+- **Minification**: JS/CSS minified in production build
+- **Tree Shaking**: Unused code eliminated from bundle
+- **API Rate Limiting**: Prevents abuse and ensures stability (100 req/15min)
+
+### Best Practices
+
+- **Repository Pattern**: Clean separation of data access layer
+- **Service Layer**: Business logic isolated from controllers
+- **Error Handling**: Centralized error handling middleware
+- **Input Validation**: All user inputs validated and sanitized
+- **Mobile-First Design**: Responsive layouts optimized for mobile
+- **Accessibility**: Semantic HTML and ARIA labels
+- **SEO-Friendly**: Meta tags and proper document structure
 
 ## 📈 Future Enhancements
 
-- [ ] In-app chat system
-- [ ] Push notifications
-- [ ] Map integration with geolocation
-- [ ] Image recognition for better matching
-- [ ] Admin dashboard
-- [ ] Reward system
-- [ ] Analytics and insights
+- [ ] In-app chat system between users
+- [ ] Push notifications for matches
+- [ ] Map integration with geolocation and radius search
+- [ ] Map Location on Item Detail Pages (embedded map preview with pin and "Open in Maps"; optional lat/lng storage)
+- [ ] AI image recognition for better matching
+- [ ] Admin dashboard with analytics
+- [ ] Reward system for active users
+- [ ] Advanced analytics and insights
 - [ ] Mobile app (React Native)
-- [ ] Email notifications
-- [ ] Multi-language support
+- [ ] Email notifications for matches and updates
+- [ ] Multi-language support (i18n)
 - [ ] PWA (Progressive Web App) support
+- [ ] QR code generation for items
+- [ ] Social media sharing integration
+- [ ] Verified user badges
 
 ## 🎨 Design System
 
-- **Primary Colors**: Cyan/Teal gradient (HSL based)
-- **Animations**: Gradient flares with smooth transitions
-- **Dark Mode**: Full support with persistent theme storage
-- **Responsive**: Mobile-first design approach
-- **Transitions**: Smooth cubic-bezier animations
-- **Components**: Reusable card system with hover effects
+### Color Palette (HSL-based)
+
+- **Primary**: Cyan/Teal gradient (`hsl(var(--primary))`)
+- **Secondary**: Neutral gray tones
+- **Accent**: Complementary accent colors
+- **Success**: Green for positive actions
+- **Destructive**: Red for warnings/deletions
+- **Muted**: Subdued backgrounds and borders
+- **Dark Mode**: Full support with CSS variables
+
+### Typography
+
+- **Headings**: Bold, gradient text for emphasis
+- **Body**: Clean, readable font sizes
+- **Responsive Text**: Scales from mobile to desktop
+  - Mobile: `text-lg` to `text-xl`
+  - Tablet: `text-xl` to `text-2xl`
+  - Desktop: `text-2xl` to `text-3xl`
+
+### Components
+
+- **Cards**: Rounded corners, shadow on hover, backdrop blur
+- **Buttons**: Gradient primary, outline secondary, icon buttons
+- **Badges**: Color-coded categories and status indicators
+- **Modals**: Centered overlays with backdrop blur
+- **Forms**: Floating labels, validation states, focus rings
+- **Navigation**: Fixed navbar with mobile hamburger menu
+- **Toasts**: Non-intrusive notifications (top-right)
+
+### Animations
+
+- **Gradient Flares**: Animated background effects with pulse
+- **Fade In**: `animate-fadeIn` for content appearance
+- **Transitions**: Smooth `cubic-bezier` easing
+- **Hover Effects**: Scale, shadow, and color transitions
+- **Loading States**: Spinner animations and skeleton screens
+
+### Responsive Breakpoints
+
+- **xs**: < 640px (Mobile)
+- **sm**: 640px+ (Large Mobile)
+- **md**: 768px+ (Tablet)
+- **lg**: 1024px+ (Desktop)
+- **xl**: 1280px+ (Large Desktop)
+
+### Mobile Optimizations
+
+- Collapsible navigation menu
+- Hidden/shortened text on small screens
+- Touch-friendly button sizes (min 44x44px)
+- Stacked layouts for narrow screens
+- Responsive image galleries
+- Optimized filter panels (vertical on mobile)
 
 ## 📱 Pages & Features
 
+### Landing Page
+
+- Hero section with animated gradient background and flare effects
+- Responsive header (logo hidden on small screens)
+- Call-to-action buttons (Sign In, Get Started)
+- Theme toggle (Dark/Light mode)
+- Feature highlights and benefits
+- Mobile-optimized layout with touch-friendly buttons
+
 ### Home Page
 
-- Hero section with animated gradient background
-- Call-to-action buttons
-- Statistics overview
+- Recent Lost Items carousel with horizontal scroll
+- Recent Found Items carousel with fade gradients
+- Statistics overview cards
+- Quick action button (Post Item)
+- Responsive grid layout
+- Mobile-optimized text sizes
 
 ### Posts/Search Page
 
-- Tabbed interface (All, Lost Items, Found Items)
-- Advanced search with filters
-- Category dropdown
-- Pagination support
+- Search bar with icon
+- Tabbed interface (All, Lost Items, Found Items) with counts
+- Collapsible filter panel:
+  - Category dropdown with icon
+  - Date range filters (From/To)
+  - Sort options (Newest, Oldest, Recent Activity)
+  - Active filter indicator
+  - Clear all filters button
+- Grid layout with responsive cards
+- Real-time search and filtering
+- Loading states with spinners
 
 ### Post Item Page
 
-- Form wizard for lost/found items
-- Multi-image upload with preview
-- Image removal capability
-- Real-time validation
+- Toggle between Lost/Found item types
+- Comprehensive form with validation:
+  - Title (required)
+  - Category dropdown (required)
+  - Description (required)
+  - Location (required)
+  - Date picker with validation (required)
+  - Multi-image upload with preview (optional for lost, required for found)
+- Image management (add/remove)
 - Loading overlay during submission
+- Success/error toast notifications
+- Mobile-responsive form layout
 
 ### Profile Page
 
 - Three tabs: Profile, Change Password, My Posts
-- Edit profile information
-- Secure password change with re-authentication
-- View/Edit/Delete your posts with action buttons
+- Profile tab:
+  - Edit name, phone, bio
+- Change Password tab:
+  - Current password verification
+  - New password with confirmation
+  - Secure re-authentication
+- My Posts tab:
+  - Separate sections for Lost/Found items
+  - Item cards with Edit/Delete actions
+  - Confirmation modals for deletions
+- Responsive card layouts
 
-### Item Detail Pages
+### Item Detail Pages (Lost/Found)
 
-- Full item details with image gallery
-- Comments section
-- Contact information
-- Edit/Delete buttons (for owners)
-- Report functionality
+- Full item information display
+- Image gallery with navigation and lightbox
+- Category and status badges
+- Location with map icon
+- Date information with calendar icon
+- Contact information (owner details)
+- Edit/Delete buttons (for item owners)
+- Mark as Found/Returned button (for owners)
+- Report button (for other users)
+- Comments section:
+  - Add new comment
+  - Delete own comments
+  - User avatars with initials
+  - Timestamps
+- Status dropdown for owners
+- Confirmation modals for actions
+- Mobile-optimized detail view
+
+### Matches Page (Under Development)
+
+- Placeholder page indicating upcoming smart matching functionality
+- No active scoring or automated suggestions yet
+- Future enhancements will add similarity scoring and breakdowns
 
 ## 🔒 Security Features
 
 - Firebase JWT token authentication
-- Protected API routes
-- Input validation and sanitization
-- Rate limiting on API endpoints
-- CORS configuration
+- Protected API routes with middleware
+- Input validation and sanitization with express-validator
+- Rate limiting on API endpoints (100 requests per 15 minutes)
+- CORS configuration with origin whitelist
 - Helmet security headers
-- Password hashing (Firebase handled)
+- Password hashing (Firebase managed)
 - Secure password change with re-authentication
-- Cloudinary secure image URLs
+- Cloudinary secure image URLs with transformations
+- MongoDB injection prevention
+- XSS protection
+- File upload restrictions (type, size, count)
 
 ## 🤝 Contributing
 
@@ -432,21 +610,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the ISC License.
 
-## � Team
+## 👥 Team
 
-- **Developer**: Nitesh Sachde
-- **GitHub**: [@Nitesh-Sachde](https://github.com/Nitesh-Sachde)
+**Team Name:** R3Claimers
+
+### Team Members
+
+- **Nitesh Sachde** - [@Nitesh-Sachde](https://github.com/Nitesh-Sachde)
+- **Vrushil Parikh** - [@vrushil-parikh](https://github.com/vrushil-parikh)
+- **Chandresh Thakkar** - [@Chandresh4997](https://github.com/Chandresh4997)
 
 ## 🙏 Acknowledgments
 
 - Firebase for authentication & storage
 - MongoDB Atlas for database hosting
-- Vite for blazing-fast development
-- Tailwind CSS for modern styling
-- All open-source contributors
+- Cloudinary for image management and optimization
+- Vite for blazing-fast development experience
+- Tailwind CSS for modern styling and responsive design
+- Lucide React for beautiful icon library
+- All open-source contributors and the MERN community
 
 ---
-
-**Made with ❤️ using the MERN Stack + Vite**
 
 _Let's reunite people with their lost belongings!_ 🎯
