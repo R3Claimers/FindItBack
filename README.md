@@ -612,7 +612,7 @@ This project is licensed under the ISC License.
 
 ## 👥 Team
 
-**Team Name:** R3Claimers
+**Team Name:** R3Claimers - [@R3Claimers](https://github.com/R3Claimers)
 
 ### Team Members
 
