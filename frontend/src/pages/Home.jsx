@@ -136,7 +136,7 @@ const Home = () => {
         {/* Lost Items */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-foreground">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
               Recent Lost Items
             </h2>
             <Link
@@ -194,7 +194,7 @@ const Home = () => {
         {/* Found Items */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-foreground">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
               Recent Found Items
             </h2>
             <Link
