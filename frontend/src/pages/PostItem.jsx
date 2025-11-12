@@ -28,6 +28,15 @@ const CATEGORIES = [
   "Other",
 ];
 
+// Helper function to get today's date in YYYY-MM-DD format
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const PostItem = () => {
   const { currentUser } = useAuth();
   const { showLoading, hideLoading } = useLoading();
@@ -131,8 +140,9 @@ const PostItem = () => {
       return;
     }
 
-    if (images.length === 0) {
-      toast.error("Please upload at least one image");
+    // Only require images for Found items
+    if (postType === "found" && images.length === 0) {
+      toast.error("Please upload at least one image for found items");
       return;
     }
 
@@ -417,7 +427,7 @@ const PostItem = () => {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    max={new Date().toISOString().split("T")[0]}
+                    max={getTodayDate()}
                     className="w-full px-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth"
                     required
                   />
@@ -455,7 +465,16 @@ const PostItem = () => {
                   <span className="flex items-center space-x-2">
                     <ImageIcon className="h-4 w-4" />
                     <span>
-                      Images <span className="text-red-500">*</span> (Maximum 5)
+                      Images{" "}
+                      {postType === "found" && (
+                        <span className="text-red-500">*</span>
+                      )}{" "}
+                      (Maximum 5)
+                      {postType === "lost" && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          (Optional)
+                        </span>
+                      )}
                     </span>
                   </span>
                 </label>

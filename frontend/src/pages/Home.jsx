@@ -153,14 +153,14 @@ const Home = () => {
             </div>
           ) : recentLostItems.length > 0 ? (
             <div className="relative -mx-4">
-              {/* Left fade gradient */}
+              {/* Left fade gradient - hidden on mobile */}
               {showLostLeftFade && (
-                <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                <div className="hidden md:block absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
               )}
 
-              {/* Right fade gradient */}
+              {/* Right fade gradient - hidden on mobile */}
               {showLostRightFade && (
-                <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                <div className="hidden md:block absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
               )}
 
               <div
@@ -211,14 +211,14 @@ const Home = () => {
             </div>
           ) : recentFoundItems.length > 0 ? (
             <div className="relative -mx-4">
-              {/* Left fade gradient */}
+              {/* Left fade gradient - hidden on mobile */}
               {showFoundLeftFade && (
-                <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                <div className="hidden md:block absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
               )}
 
-              {/* Right fade gradient */}
+              {/* Right fade gradient - hidden on mobile */}
               {showFoundRightFade && (
-                <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                <div className="hidden md:block absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
               )}
 
               <div

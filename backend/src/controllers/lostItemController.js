@@ -180,7 +180,7 @@ class LostItemController {
 
       res.status(200).json({
         status: "success",
-        message: "Lost item marked as resolved",
+        message: "Lost item marked as found",
         data: item,
       });
     } catch (error) {
@@ -196,10 +196,10 @@ class LostItemController {
     try {
       const { status } = req.body;
 
-      if (!status || !["open", "resolved"].includes(status)) {
+      if (!status || !["open", "found"].includes(status)) {
         return res.status(400).json({
           status: "error",
-          message: "Invalid status. Must be 'open' or 'resolved'",
+          message: "Invalid status. Must be 'open' or 'found'",
         });
       }
 

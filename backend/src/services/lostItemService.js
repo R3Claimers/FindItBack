@@ -101,7 +101,7 @@ class LostItemService {
   async markAsResolved(id, userId) {
     try {
       const item = await lostItemRepository.update(id, userId, {
-        status: "resolved",
+        status: "found",
       });
 
       if (!item) {

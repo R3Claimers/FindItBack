@@ -73,7 +73,7 @@ const LostItemDetail = () => {
     try {
       setResolving(true);
       await itemService.resolveLostItem(id);
-      toast.success("Item marked as resolved!");
+      toast.success("Item marked as found!");
       fetchItemDetail(); // Refresh data
     } catch (error) {
       console.error("Error resolving item:", error);
@@ -207,12 +207,12 @@ const LostItemDetail = () => {
                     </span>
                     <span
                       className={`badge ${
-                        item.status === "resolved"
+                        item.status === "found"
                           ? "badge-success"
                           : "badge-primary"
                       }`}
                     >
-                      {item.status === "resolved" ? "Resolved" : "Open"}
+                      {item.status === "found" ? "Found" : "Open"}
                     </span>
                   </div>
                   <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -271,11 +271,11 @@ const LostItemDetail = () => {
                     className="w-full px-4 py-2 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="open">Open</option>
-                    <option value="resolved">Resolved</option>
+                    <option value="found">Found</option>
                   </select>
                 </div>
 
-                {item.status !== "resolved" && (
+                {item.status !== "found" && (
                   <button
                     onClick={() => setShowResolveModal(true)}
                     disabled={resolving}
@@ -336,7 +336,7 @@ const LostItemDetail = () => {
                 </div>
               </div>
 
-              {!isOwner && item.status !== "resolved" && (
+              {!isOwner && item.status !== "found" && (
                 <div className="space-y-3 pt-4 border-t border-border">
                   <p className="text-sm text-muted-foreground mb-3">
                     Found this item? Contact the owner:
@@ -401,7 +401,7 @@ const LostItemDetail = () => {
         onClose={() => setShowResolveModal(false)}
         onConfirm={handleResolve}
         title="Mark as Found"
-        message="Mark this item as resolved/found? This will notify those who might have found it."
+        message="Mark this item as found? This will notify that the item has been found."
         confirmText="Mark as Found"
         cancelText="Cancel"
         confirmVariant="primary"

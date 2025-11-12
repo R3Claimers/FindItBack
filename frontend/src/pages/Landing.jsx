@@ -28,44 +28,47 @@ const Landing = () => {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
         {/* Header */}
-        <header className="relative z-10 container mx-auto px-4 py-6">
-          <nav className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3 group">
+        <header className="relative z-10 container mx-auto px-4 py-4 sm:py-6">
+          <nav className="flex items-center justify-between gap-2">
+            <Link
+              to="/"
+              className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0"
+            >
               <img
                 src="/logo.png"
                 alt="FindItBack Logo"
-                className="h-16 w-16 object-contain transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
+                className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
                 onError={(e) => {
                   e.target.style.display = "none";
                 }}
               />
-              <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
+              <span className="hidden sm:block text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
                 FindItBack
               </span>
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg bg-muted hover:bg-muted/70 transition-all duration-300"
+                className="p-2 sm:p-2 rounded-lg bg-muted hover:bg-muted/70 transition-all duration-300 flex-shrink-0"
                 aria-label="Toggle theme"
               >
                 {isDark ? (
-                  <Sun className="h-5 w-5 text-accent" />
+                  <Sun className="h-5 w-5 sm:h-5 sm:w-5 text-accent" />
                 ) : (
-                  <Moon className="h-5 w-5 text-primary" />
+                  <Moon className="h-5 w-5 sm:h-5 sm:w-5 text-primary" />
                 )}
               </button>
 
               <Link
                 to="/login"
-                className="px-6 py-2 text-foreground hover:text-primary transition-colors"
+                className="px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-base sm:text-base text-foreground hover:text-primary transition-colors flex-shrink-0"
               >
                 Sign In
               </Link>
               <Link
                 to="/signup"
-                className="px-6 py-2 bg-gradient-to-r from-primary to-primary/90 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
+                className="px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-base sm:text-base bg-gradient-to-r from-primary to-primary/90 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 flex-shrink-0 whitespace-nowrap"
               >
                 Get Started
               </Link>

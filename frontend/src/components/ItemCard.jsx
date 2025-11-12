@@ -48,8 +48,8 @@ const ItemCard = ({ item, type = "lost", onAction, hidePostedBy = false }) => {
 
   const getStatusBadge = () => {
     if (isLost) {
-      return item.status === "resolved" ? (
-        <span className="badge badge-success">Resolved</span>
+      return item.status === "found" ? (
+        <span className="badge badge-success">Found</span>
       ) : (
         <span className="badge badge-primary">Open</span>
       );
@@ -94,9 +94,26 @@ const ItemCard = ({ item, type = "lost", onAction, hidePostedBy = false }) => {
             </div>
           </Link>
         ) : (
-          <div className="w-full h-48 bg-muted rounded-lg mb-4 flex items-center justify-center">
-            <ImageIcon className="h-12 w-12 text-muted-foreground opacity-50" />
-          </div>
+          <Link to={itemPath} className="relative group">
+            <div className="w-full h-48 bg-muted rounded-lg mb-4 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-muted-foreground/20">
+              <ImageIcon className="h-12 w-12 text-muted-foreground opacity-50" />
+              <p className="text-sm text-muted-foreground">
+                No image available
+              </p>
+              {/* Lost/Found Badge Overlay */}
+              <div className="absolute top-2 left-2">
+                <span
+                  className={`badge backdrop-blur-sm border border-white/20 shadow-md ${
+                    isLost
+                      ? "bg-orange-500/90 text-white"
+                      : "bg-green-500/90 text-white"
+                  }`}
+                >
+                  {isLost ? "Lost" : "Found"}
+                </span>
+              </div>
+            </div>
+          </Link>
         )}
 
         {/* Category & Status */}

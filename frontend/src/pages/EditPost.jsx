@@ -126,8 +126,9 @@ const EditPost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (existingImages.length + newImages.length === 0) {
-      toast.error("Please add at least one image");
+    // Only require images for Found items
+    if (type === "found" && existingImages.length + newImages.length === 0) {
+      toast.error("Please add at least one image for found items");
       return;
     }
 
@@ -318,7 +319,14 @@ const EditPost = () => {
             {/* Images */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Images (Max 5) *
+                Images (Max 5){" "}
+                {type === "found" ? (
+                  "*"
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    (Optional)
+                  </span>
+                )}
               </label>
 
               {/* Existing Images */}

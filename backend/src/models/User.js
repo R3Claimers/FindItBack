@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      index: true,
+      // index: true removed - unique already creates an index
     },
     name: {
       type: String,
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true,
+      unique: true, // This already creates an index
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
@@ -52,9 +52,8 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
-userSchema.index({ email: 1 });
-userSchema.index({ uid: 1 });
+// Indexes are automatically created by unique: true on uid and email fields
+// No need for manual index definitions
 
 // Method to get public profile
 userSchema.methods.getPublicProfile = function () {

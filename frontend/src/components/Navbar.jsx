@@ -38,17 +38,17 @@ const Navbar = () => {
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm transition-smooth">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo and Brand */}
-          <div className="flex items-center">
+          <div className="flex items-center min-w-0">
             <Link
               to={currentUser ? "/home" : "/"}
-              className="flex items-center space-x-3"
+              className="flex items-center space-x-2 sm:space-x-3"
             >
               <img
                 src="/logo.png"
                 alt="FindItBack Logo"
-                className="h-14 w-14 object-contain transition-transform hover:scale-110 duration-300"
+                className="h-10 w-10 sm:h-14 sm:w-14 object-contain transition-transform hover:scale-110 duration-300 flex-shrink-0"
                 onError={(e) => {
                   // Fallback to icon if logo image not found
                   e.target.style.display = "none";
@@ -56,10 +56,10 @@ const Navbar = () => {
                 }}
               />
               <Compass
-                className="h-12 w-12 text-primary transition-transform hover:scale-110 duration-300"
+                className="h-8 w-8 sm:h-12 sm:w-12 text-primary transition-transform hover:scale-110 duration-300 flex-shrink-0"
                 style={{ display: "none" }}
               />
-              <span className="text-2xl font-bold text-primary dark:text-primary">
+              <span className="text-lg sm:text-2xl font-bold text-primary dark:text-primary truncate">
                 FindItBack
               </span>
             </Link>
