@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Search as SearchIcon, Filter, Package } from "lucide-react";
+import {
+  Search as SearchIcon,
+  Filter,
+  Package,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { lostItemService } from "../services/lostItemService.jsx";
 import { foundItemService } from "../services/foundItemService.jsx";
 import ItemCard from "../components/ItemCard.jsx";
@@ -31,6 +37,7 @@ const Search = () => {
   const [loading, setLoading] = useState(true);
   const [lostItems, setLostItems] = useState([]);
   const [foundItems, setFoundItems] = useState([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Focus on search input if coming from hero section
   useEffect(() => {
@@ -142,113 +149,157 @@ const Search = () => {
 
         {/* Filters */}
         <div className="mb-8">
-          <div className="flex flex-col gap-4">
-            {/* Tab Filters */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => setActiveTab("all")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === "all"
-                    ? "bg-cyan-500 text-white shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                All Items ({lostItems.length + foundItems.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("lost")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === "lost"
-                    ? "bg-cyan-500 text-white shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                Lost ({lostItems.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("found")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === "found"
-                    ? "bg-cyan-500 text-white shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                Found ({foundItems.length})
-              </button>
-            </div>
+          {/* Tab Filters */}
+          <div className="flex flex-wrap gap-2 sm:gap-3 mb-4">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`flex-1 min-w-[100px] px-4 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === "all"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              <span className="hidden sm:inline">All Items</span>
+              <span className="sm:hidden">All</span> (
+              {lostItems.length + foundItems.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("lost")}
+              className={`flex-1 min-w-[100px] px-4 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === "lost"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              Lost ({lostItems.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("found")}
+              className={`flex-1 min-w-[100px] px-4 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === "found"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              Found ({foundItems.length})
+            </button>
+          </div>
 
-            {/* Category, Date, and Sort Filters */}
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Category Filter */}
+          {/* Collapsible Filter Controls */}
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            {/* Filter Header - Always Visible */}
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 hover:bg-muted/50 transition-all"
+            >
               <div className="flex items-center gap-2">
-                <Filter className="h-5 w-5 text-muted-foreground" />
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                >
-                  {CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                <Filter className="h-5 w-5 text-cyan-500" />
+                <span className="font-medium text-foreground">Filters</span>
+                {!filtersOpen &&
+                  (selectedCategory !== "All" ||
+                    dateFrom ||
+                    dateTo ||
+                    sortBy !== "newest") && (
+                    <span className="ml-2 px-2 py-0.5 bg-cyan-500 text-white text-xs rounded-full">
+                      Active
+                    </span>
+                  )}
               </div>
-
-              {/* Date From */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-muted-foreground">From:</label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              {/* Date To */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-muted-foreground">To:</label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              {/* Sort By */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-muted-foreground">Sort:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 bg-card text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="recent-activity">Recent Activity</option>
-                </select>
-              </div>
-
-              {/* Clear Filters Button */}
-              {(dateFrom ||
-                dateTo ||
-                selectedCategory !== "All" ||
-                sortBy !== "newest") && (
-                <button
-                  onClick={() => {
-                    setDateFrom("");
-                    setDateTo("");
-                    setSelectedCategory("All");
-                    setSortBy("newest");
-                  }}
-                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-smooth"
-                >
-                  Clear Filters
-                </button>
+              {filtersOpen ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
               )}
-            </div>
+            </button>
+
+            {/* Filter Content - Collapsible */}
+            {filtersOpen && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-border animate-fadeIn">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 pt-4">
+                  {/* Category Filter */}
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5">
+                      Category
+                    </label>
+                    <div className="relative">
+                      <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2.5 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                      >
+                        {CATEGORIES.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Date Range Filters */}
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5">
+                      Date From
+                    </label>
+                    <input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5">
+                      Date To
+                    </label>
+                    <input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Sort By */}
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-xs sm:text-sm font-medium text-muted-foreground mb-1.5">
+                      Sort By
+                    </label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-background text-foreground border border-input rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="recent-activity">Recent Activity</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Clear Filters Button */}
+                {(dateFrom ||
+                  dateTo ||
+                  selectedCategory !== "All" ||
+                  sortBy !== "newest") && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <button
+                      onClick={() => {
+                        setDateFrom("");
+                        setDateTo("");
+                        setSelectedCategory("All");
+                        setSortBy("newest");
+                      }}
+                      className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 rounded-lg transition-all"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Image as ImageIcon } from "lucide-react";
+import { MapPin, Calendar, Image as ImageIcon, Image } from "lucide-react";
 import { formatDate, truncateText } from "../utils/helpers.js";
 
 const ItemCard = ({ item, type = "lost", onAction, hidePostedBy = false }) => {
@@ -86,8 +86,9 @@ const ItemCard = ({ item, type = "lost", onAction, hidePostedBy = false }) => {
                   {isLost ? "Lost" : "Found"}
                 </span>
                 {hasMultipleImages && (
-                  <span className="badge bg-black/70 text-white backdrop-blur-sm border border-white/10 text-xs">
-                    {itemImages.length} imgs
+                  <span className="badge bg-black/70 text-white backdrop-blur-sm border border-white/10 flex items-center gap-1">
+                    <Image className="h-3 w-3" />
+                    <span className="text-xs">{itemImages.length}</span>
                   </span>
                 )}
               </div>
