@@ -1,13 +1,10 @@
 const Report = require("../models/Report");
-const LostItem = require("../models/LostItem");
-const FoundItem = require("../models/FoundItem");
+const { LostItem, FoundItem } = require("../models/Item");
 
-// Create a report
 exports.createReport = async (req, res, next) => {
   try {
     const { itemType, itemId, reason, details } = req.body;
 
-    // Validate item exists
     const Model = itemType === "LostItem" ? LostItem : FoundItem;
     const item = await Model.findById(itemId);
 
@@ -18,7 +15,6 @@ exports.createReport = async (req, res, next) => {
       });
     }
 
-    // Check if user already reported this item
     const existingReport = await Report.findOne({
       reportedBy: req.user._id,
       itemId,
@@ -31,7 +27,6 @@ exports.createReport = async (req, res, next) => {
       });
     }
 
-    // Create report
     const report = await Report.create({
       reportedBy: req.user._id,
       itemType,
@@ -50,7 +45,6 @@ exports.createReport = async (req, res, next) => {
   }
 };
 
-// Get reports by item (for admins)
 exports.getReportsByItem = async (req, res, next) => {
   try {
     const { itemType, itemId } = req.params;
@@ -69,7 +63,6 @@ exports.getReportsByItem = async (req, res, next) => {
   }
 };
 
-// Get all reports (for admins)
 exports.getAllReports = async (req, res, next) => {
   try {
     const { status, itemType } = req.query;
@@ -93,7 +86,6 @@ exports.getAllReports = async (req, res, next) => {
   }
 };
 
-// Update report status (for admins)
 exports.updateReportStatus = async (req, res, next) => {
   try {
     const { reportId } = req.params;
@@ -127,7 +119,6 @@ exports.updateReportStatus = async (req, res, next) => {
   }
 };
 
-// Delete report (for admins)
 exports.deleteReport = async (req, res, next) => {
   try {
     const { reportId } = req.params;

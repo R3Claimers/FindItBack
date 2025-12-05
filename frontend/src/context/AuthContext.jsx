@@ -70,13 +70,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with Google
   const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
 
-      // Create or update user profile in database
       await authService.createOrUpdateProfile({
         uid: userCredential.user.uid,
         name: userCredential.user.displayName,
@@ -169,7 +167,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);

@@ -1,10 +1,6 @@
 const userService = require("../services/userService");
 
 class UserController {
-  /**
-   * Create or update user profile
-   * POST /api/v1/users
-   */
   async createOrUpdateUser(req, res, next) {
     try {
       const { uid, name, email, phone, profilePic, bio } = req.body;
@@ -30,10 +26,6 @@ class UserController {
     }
   }
 
-  /**
-   * Get current user profile
-   * GET /api/v1/users/me
-   */
   async getCurrentUser(req, res, next) {
     try {
       const user = await userService.getUserByUid(req.uid);
@@ -47,10 +39,6 @@ class UserController {
     }
   }
 
-  /**
-   * Get user by ID
-   * GET /api/v1/users/:id
-   */
   async getUserById(req, res, next) {
     try {
       const user = await userService.getUserById(req.params.id);
@@ -64,10 +52,6 @@ class UserController {
     }
   }
 
-  /**
-   * Update current user profile
-   * PUT /api/v1/users/me
-   */
   async updateCurrentUser(req, res, next) {
     try {
       const { name, phone, profilePic, bio } = req.body;
@@ -89,10 +73,6 @@ class UserController {
     }
   }
 
-  /**
-   * Delete current user account
-   * DELETE /api/v1/users/me
-   */
   async deleteCurrentUser(req, res, next) {
     try {
       await userService.deleteUser(req.uid);
@@ -106,18 +86,9 @@ class UserController {
     }
   }
 
-  /**
-   * Change user password
-   * POST /api/v1/users/change-password
-   */
+  // Password changes are handled client-side via Firebase Auth SDK
   async changePassword(req, res, next) {
     try {
-      const { currentPassword, newPassword } = req.body;
-
-      // Firebase Admin SDK doesn't support password verification
-      // Password change should be handled on the client-side using Firebase Auth
-      // This endpoint is a placeholder for any additional server-side logic
-
       res.status(200).json({
         status: "success",
         message:

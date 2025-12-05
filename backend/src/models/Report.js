@@ -59,10 +59,7 @@ const reportSchema = new mongoose.Schema(
   }
 );
 
-// Compound index to prevent duplicate reports from same user
 reportSchema.index({ reportedBy: 1, itemId: 1 }, { unique: true });
-
-// Index for querying reports by item
 reportSchema.index({ itemType: 1, itemId: 1 });
 
 module.exports = mongoose.model("Report", reportSchema);
