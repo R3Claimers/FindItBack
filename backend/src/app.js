@@ -18,6 +18,7 @@ const { createItemRoutes } = require("./routes/itemRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const claimRoutes = require("./routes/claimRoutes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -26,6 +27,7 @@ const allowedOrigins = [
   "https://finditback.vercel.app",
   "http://localhost:3000",
   "http://localhost:3001",
+  "http://localhost:3002",
 ];
 
 initializeFirebase();
@@ -49,7 +51,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
   message: "Too many requests from this IP, please try again later.",
 });
 app.use("/api/", limiter);
@@ -69,6 +71,7 @@ app.use(`${API_PREFIX}/found-items`, createItemRoutes("found"));
 app.use(`${API_PREFIX}/matches`, matchRoutes);
 app.use(`${API_PREFIX}/comments`, commentRoutes);
 app.use(`${API_PREFIX}/reports`, reportRoutes);
+app.use(`${API_PREFIX}/claims`, claimRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

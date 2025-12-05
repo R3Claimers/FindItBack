@@ -12,14 +12,18 @@ import {
   CheckCircle,
   ArrowLeft,
   AlertCircle,
+  Hand,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { itemService } from "../services/itemService.jsx";
 import reportService from "../services/reportService.jsx";
+import claimService from "../services/claimService.jsx";
 import ImageGallery from "../components/ImageGallery.jsx";
 import Comments from "../components/Comments.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
 import ReportModal from "../components/ReportModal.jsx";
+import ClaimModal from "../components/ClaimModal.jsx";
+import ClaimsSection from "../components/ClaimsSection.jsx";
 import toast from "react-hot-toast";
 
 const FoundItemDetail = () => {
@@ -36,10 +40,19 @@ const FoundItemDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [userClaim, setUserClaim] = useState(null);
+  const [claimLoading, setClaimLoading] = useState(false);
 
   useEffect(() => {
     fetchItemDetail();
   }, [id]);
+
+  useEffect(() => {
+    if (id && userProfile && !isOwner) {
+      fetchUserClaimStatus();
+    }
+  }, [id, userProfile, item]);
 
   const fetchItemDetail = async () => {
     try {
@@ -52,6 +65,35 @@ const FoundItemDetail = () => {
       navigate("/home");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserClaimStatus = async () => {
+    try {
+      setClaimLoading(true);
+      const response = await claimService.getClaimStatus(id);
+      setUserClaim(response.data);
+    } catch (error) {
+      console.error("Error fetching claim status:", error);
+    } finally {
+      setClaimLoading(false);
+    }
+  };
+
+  const handleSubmitClaim = async (message) => {
+    await claimService.createClaim(id, message);
+    toast.success("Claim submitted successfully!");
+    fetchUserClaimStatus();
+  };
+
+  const handleWithdrawClaim = async () => {
+    try {
+      await claimService.withdrawClaim(userClaim._id);
+      toast.success("Claim withdrawn");
+      setUserClaim(null);
+    } catch (error) {
+      console.error("Error withdrawing claim:", error);
+      toast.error(error.message || "Failed to withdraw claim");
     }
   };
 
@@ -311,6 +353,11 @@ const FoundItemDetail = () => {
               </div>
             )}
 
+            {/* Claims Section - Only visible to owner */}
+            {isOwner && !item.isReturned && (
+              <ClaimsSection itemId={id} onClaimApproved={fetchItemDetail} />
+            )}
+
             {/* Contact Information */}
             <div className="card">
               <h3 className="font-semibold text-foreground mb-4">Posted By</h3>
@@ -363,12 +410,68 @@ const FoundItemDetail = () => {
               )}
             </div>
 
+            {/* Make Claim Section (for non-owners) */}
+            {!isOwner && !item.isReturned && (
+              <div className="card">
+                {claimLoading ? (
+                  <div className="flex justify-center py-2">
+                    <div className="spinner-small"></div>
+                  </div>
+                ) : userClaim ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-foreground">
+                        Your Claim
+                      </h4>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 text-xs rounded-full border ${
+                          userClaim.status === "pending"
+                            ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30"
+                            : userClaim.status === "approved"
+                            ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30"
+                            : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30"
+                        }`}
+                      >
+                        {userClaim.status.charAt(0).toUpperCase() +
+                          userClaim.status.slice(1)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {userClaim.message}
+                    </p>
+                    {userClaim.responseMessage && (
+                      <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+                        <span className="font-medium">Response:</span>{" "}
+                        {userClaim.responseMessage}
+                      </p>
+                    )}
+                    {userClaim.status === "pending" && (
+                      <button
+                        onClick={handleWithdrawClaim}
+                        className="w-full text-sm text-orange-500 dark:text-orange-400 hover:text-red-500 dark:hover:text-red-400 transition-smooth font-medium"
+                      >
+                        Withdraw Claim
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowClaimModal(true)}
+                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded-lg transition-smooth"
+                  >
+                    <Hand className="mr-2 h-4 w-4" />
+                    Make a Claim
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Report/Flag (for non-owners) */}
             {!isOwner && (
               <div className="card">
                 <button
                   onClick={() => setShowReportModal(true)}
-                  className="w-full text-sm text-muted-foreground hover:text-destructive transition-smooth"
+                  className="w-full text-sm text-orange-500 dark:text-orange-400 hover:text-red-500 dark:hover:text-red-400 transition-smooth font-medium"
                 >
                   <AlertCircle className="inline-block mr-2 h-4 w-4" />
                   Report this post
@@ -412,6 +515,13 @@ const FoundItemDetail = () => {
         onClose={() => setShowReportModal(false)}
         onSubmit={handleReport}
         itemType="found"
+      />
+
+      <ClaimModal
+        isOpen={showClaimModal}
+        onClose={() => setShowClaimModal(false)}
+        onSubmit={handleSubmitClaim}
+        itemTitle={item?.title}
       />
     </div>
   );

@@ -368,7 +368,7 @@ const LostItemDetail = () => {
               <div className="card">
                 <button
                   onClick={() => setShowReportModal(true)}
-                  className="w-full text-sm text-muted-foreground hover:text-destructive transition-smooth"
+                  className="w-full text-sm text-orange-500 dark:text-orange-400 hover:text-red-500 dark:hover:text-red-400 transition-smooth font-medium"
                 >
                   <AlertCircle className="inline-block mr-2 h-4 w-4" />
                   Report this post
