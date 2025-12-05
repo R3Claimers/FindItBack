@@ -7,17 +7,14 @@ const rateLimit = require("express-rate-limit");
 const path = require("path");
 const dotenv = require("dotenv");
 
-// Load environment variables FIRST
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const connectDB = require("./config/database");
 const { initializeFirebase } = require("./config/firebase");
 const errorHandler = require("./middlewares/errorHandler");
 
-// Import routes
 const userRoutes = require("./routes/userRoutes");
-const lostItemRoutes = require("./routes/lostItemRoutes");
-const foundItemRoutes = require("./routes/foundItemRoutes");
+const { createItemRoutes } = require("./routes/itemRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const reportRoutes = require("./routes/reportRoutes");
@@ -30,18 +27,14 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
 ];
-// Initialize Firebase
-initializeFirebase();
 
-// Connect to MongoDB
+initializeFirebase();
 connectDB();
 
-// Middleware
-app.use(helmet()); // Security headers
-app.use(compression()); // Compress responses
-app.use(morgan("dev")); // Logging
+app.use(helmet());
+app.use(compression());
+app.use(morgan("dev"));
 
-// CORS configuration
 app.use(
   cors({
     origin: allowedOrigins,
@@ -49,22 +42,18 @@ app.use(
   })
 );
 
-// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
 app.use("/api/", limiter);
 
-// Health check
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "success",
@@ -73,16 +62,14 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API Routes
 const API_PREFIX = process.env.API_PREFIX || "/api/v1";
 app.use(`${API_PREFIX}/users`, userRoutes);
-app.use(`${API_PREFIX}/lost-items`, lostItemRoutes);
-app.use(`${API_PREFIX}/found-items`, foundItemRoutes);
+app.use(`${API_PREFIX}/lost-items`, createItemRoutes("lost"));
+app.use(`${API_PREFIX}/found-items`, createItemRoutes("found"));
 app.use(`${API_PREFIX}/matches`, matchRoutes);
 app.use(`${API_PREFIX}/comments`, commentRoutes);
 app.use(`${API_PREFIX}/reports`, reportRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     status: "error",
@@ -90,10 +77,8 @@ app.use((req, res) => {
   });
 });
 
-// Error handling middleware (should be last)
 app.use(errorHandler);
 
-// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || "development"}`);

@@ -1,10 +1,6 @@
 const matchService = require("../services/matchService");
 
 class MatchController {
-  /**
-   * Find matches for a specific lost item
-   * GET /api/v1/matches/lost/:id
-   */
   async findMatchesForLostItem(req, res, next) {
     try {
       const { minScore = 40 } = req.query;
@@ -23,10 +19,6 @@ class MatchController {
     }
   }
 
-  /**
-   * Find matches for a specific found item
-   * GET /api/v1/matches/found/:id
-   */
   async findMatchesForFoundItem(req, res, next) {
     try {
       const { minScore = 40 } = req.query;
@@ -45,10 +37,6 @@ class MatchController {
     }
   }
 
-  /**
-   * Get all potential matches in the system
-   * GET /api/v1/matches
-   */
   async getAllMatches(req, res, next) {
     try {
       const { minScore = 40, limit = 50 } = req.query;
@@ -67,10 +55,6 @@ class MatchController {
     }
   }
 
-  /**
-   * Get matches for current user's lost items
-   * GET /api/v1/matches/my-lost-items
-   */
   async getMyLostItemMatches(req, res, next) {
     try {
       const { minScore = 40 } = req.query;
@@ -89,10 +73,6 @@ class MatchController {
     }
   }
 
-  /**
-   * Get matches for current user's found items
-   * GET /api/v1/matches/my-found-items
-   */
   async getMyFoundItemMatches(req, res, next) {
     try {
       const { minScore = 40 } = req.query;

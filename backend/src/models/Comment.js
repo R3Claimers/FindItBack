@@ -9,8 +9,8 @@ const commentSchema = new mongoose.Schema(
     },
     itemType: {
       type: String,
-      required: true,
       enum: ["LostItem", "FoundItem"],
+      required: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,7 +29,6 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
 commentSchema.index({ itemId: 1, createdAt: -1 });
 
 const Comment = mongoose.model("Comment", commentSchema);

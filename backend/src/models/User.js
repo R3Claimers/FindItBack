@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      // index: true removed - unique already creates an index
     },
     name: {
       type: String,
@@ -18,7 +17,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true, // This already creates an index
+      unique: true,
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
@@ -28,6 +27,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\+?[\d\s-()]+$/, "Please provide a valid phone number"],
     },
+    // Not mandatory as some users prefer not to upload their photo
     profilePic: {
       type: String,
       default: null,
@@ -38,24 +38,12 @@ const userSchema = new mongoose.Schema(
       maxlength: [500, "Bio cannot exceed 500 characters"],
       default: "",
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-// Indexes are automatically created by unique: true on uid and email fields
-// No need for manual index definitions
-
-// Method to get public profile
 userSchema.methods.getPublicProfile = function () {
   return {
     _id: this._id,
