@@ -6,6 +6,7 @@ import {
   Package,
   ChevronDown,
   ChevronUp,
+  X,
 } from "lucide-react";
 import { lostItemService } from "../services/lostItemService.jsx";
 import { foundItemService } from "../services/foundItemService.jsx";
@@ -142,8 +143,17 @@ const Search = () => {
               placeholder="Search by title, description, or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-card text-foreground border border-input rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all shadow-sm"
+              className="w-full pl-12 pr-12 py-4 bg-card text-foreground border border-input rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all shadow-sm"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                aria-label="Clear search"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
         </div>
 
