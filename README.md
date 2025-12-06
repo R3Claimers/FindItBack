@@ -57,9 +57,6 @@ A comprehensive web-based Lost and Found management system built with the **MERN
 - **Edit/Delete Posts** directly from profile
 - **Responsive profile cards**
 
-### 🧪 Matches (Planned / Under Development)
-
-The matches feature is currently under development. A placeholder page exists, but scoring, automated suggestions, and match notifications are not yet active in the UI.
 
 ### 🚨 Reporting System
 
@@ -71,7 +68,7 @@ The matches feature is currently under development. A placeholder page exists, b
 
 ### 🎨 Beautiful UI/UX
 
-- **Modern Design** with Cyan/Teal gradient theme
+- **Modern Design** with Cyan gradient theme
 - **Dark Mode** support with persistent theme toggle
 - **Fully Responsive** design across all devices (mobile-first approach)
 - **Smooth Animations** and transitions
@@ -368,20 +365,16 @@ Authorization: Bearer <firebase-id-token>
 cd backend
 npm test
 
-# Frontend tests
-cd frontend
-npm test
-```
 
 ## 🚀 Deployment
 
-### Backend (Render/Railway/Heroku)
+### Backend (AWS)
 
 1. Connect GitHub repository
 2. Set environment variables
 3. Deploy!
 
-### Frontend (Vercel/Netlify)
+### Frontend (Vercel)
 
 1. Connect GitHub repository
 2. Set build command: `npm run build`
@@ -428,7 +421,7 @@ Already cloud-hosted ✅
 - [ ] In-app chat system between users
 - [ ] Push notifications for matches
 - [ ] Map integration with geolocation and radius search
-- [ ] Map Location on Item Detail Pages (embedded map preview with pin and "Open in Maps"; optional lat/lng storage)
+- [ ] Map Location on Item Detail Pages 
 - [ ] AI image recognition for better matching
 - [ ] Admin dashboard with analytics
 - [ ] Reward system for active users
@@ -445,7 +438,7 @@ Already cloud-hosted ✅
 
 ### Color Palette (HSL-based)
 
-- **Primary**: Cyan/Teal gradient (`hsl(var(--primary))`)
+- **Primary**: Cyan gradient (`hsl(var(--primary))`)
 - **Secondary**: Neutral gray tones
 - **Accent**: Complementary accent colors
 - **Success**: Green for positive actions
