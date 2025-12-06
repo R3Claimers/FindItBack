@@ -40,7 +40,9 @@ const authenticateUser = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Authentication error:", error.message);
+    if (process.env.NODE_ENV !== "test") {
+      console.error("Authentication error:", error.message);
+    }
 
     if (error.code === "auth/id-token-expired") {
       return res.status(401).json({

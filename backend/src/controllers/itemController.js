@@ -177,11 +177,13 @@ const createItemController = (itemType) => {
           itemType === "lost" ? ["open", "found"] : ["available", "claimed"];
 
         if (!status || !validStatuses.includes(status)) {
+          const msg =
+            itemType === "lost"
+              ? "Invalid status. Must be 'open' or 'found'"
+              : "Invalid status. Must be 'available' or 'claimed'";
           return res.status(400).json({
             status: "error",
-            message: `Invalid status. Must be one of: ${validStatuses.join(
-              ", "
-            )}`,
+            message: msg,
           });
         }
 

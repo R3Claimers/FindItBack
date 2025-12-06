@@ -1,8 +1,13 @@
-const itemRepository = require("../repositories/itemRepository");
+const lostItemRepository = require("../repositories/lostItemRepository");
+const foundItemRepository = require("../repositories/foundItemRepository");
 
 class ItemService {
   _getDateField(itemType) {
     return itemType === "lost" ? "dateLost" : "dateFound";
+  }
+
+  _getRepo(itemType) {
+    return itemType === "lost" ? lostItemRepository : foundItemRepository;
   }
 
   async createItem(itemType, userId, itemData) {
@@ -14,12 +19,14 @@ class ItemService {
       [dateField]: itemData.dateLost || itemData.dateFound || itemData.date,
     };
 
-    const item = await itemRepository.create(itemType, data);
-    return await itemRepository.findById(itemType, item._id);
+    const repo = this._getRepo(itemType);
+    const item = await repo.create(data);
+    return await repo.findById(item._id);
   }
 
   async getItemById(itemType, id) {
-    const item = await itemRepository.findById(itemType, id);
+    const repo = this._getRepo(itemType);
+    const item = await repo.findById(id);
 
     if (!item) {
       throw new Error("Item not found");
@@ -29,11 +36,13 @@ class ItemService {
   }
 
   async getAllItems(itemType, filters, page, limit) {
-    return await itemRepository.findAll(itemType, filters, page, limit);
+    const repo = this._getRepo(itemType);
+    return await repo.findAll(filters, page, limit);
   }
 
   async getUserItems(itemType, userId, page, limit) {
-    return await itemRepository.findByUserId(itemType, userId, page, limit);
+    const repo = this._getRepo(itemType);
+    return await repo.findByUserId(userId, page, limit);
   }
 
   async updateItem(itemType, id, userId, updateData) {
@@ -44,7 +53,8 @@ class ItemService {
         updateData.dateLost || updateData.dateFound || updateData.date;
     }
 
-    const item = await itemRepository.update(itemType, id, userId, updateData);
+    const repo = this._getRepo(itemType);
+    const item = await repo.update(id, userId, updateData);
 
     if (!item) {
       throw new Error("Item not found or you are not authorized to update it");
@@ -54,7 +64,8 @@ class ItemService {
   }
 
   async deleteItem(itemType, id, userId) {
-    const item = await itemRepository.delete(itemType, id, userId);
+    const repo = this._getRepo(itemType);
+    const item = await repo.delete(id, userId);
 
     if (!item) {
       throw new Error("Item not found or you are not authorized to delete it");
@@ -71,7 +82,8 @@ class ItemService {
       updateData.isReturned = true;
     }
 
-    const item = await itemRepository.update(itemType, id, userId, updateData);
+    const repo = this._getRepo(itemType);
+    const item = await repo.update(id, userId, updateData);
 
     if (!item) {
       throw new Error("Item not found or you are not authorized to update it");
@@ -81,7 +93,8 @@ class ItemService {
   }
 
   async updateStatus(itemType, id, userId, status) {
-    const item = await itemRepository.update(itemType, id, userId, { status });
+    const repo = this._getRepo(itemType);
+    const item = await repo.update(id, userId, { status });
 
     if (!item) {
       throw new Error("Item not found or you are not authorized to update it");
@@ -95,16 +108,13 @@ class ItemService {
       throw new Error("Search term is required");
     }
 
-    return await itemRepository.search(
-      itemType,
-      searchTerm.trim(),
-      page,
-      limit
-    );
+    const repo = this._getRepo(itemType);
+    return await repo.search(searchTerm.trim(), page, limit);
   }
 
   async getActiveItems(itemType) {
-    return await itemRepository.findActiveItems(itemType);
+    const repo = this._getRepo(itemType);
+    return await repo.findActiveItems();
   }
 }
 
