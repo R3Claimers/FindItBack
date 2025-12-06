@@ -21,25 +21,26 @@ const reportRoutes = require("./routes/reportRoutes");
 const claimRoutes = require("./routes/claimRoutes");
 
 const app = express();
+
 app.set("trust proxy", 1);
+
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = [
-  "https://finditback.vercel.app",
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:3002",
-];
 
 initializeFirebase();
 connectDB();
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
+
 app.use(compression());
 app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: true,
     credentials: true,
   })
 );
@@ -53,6 +54,8 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
   message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use("/api/", limiter);
 
@@ -65,6 +68,7 @@ app.get("/health", (req, res) => {
 });
 
 const API_PREFIX = process.env.API_PREFIX || "/api/v1";
+
 app.use(`${API_PREFIX}/users`, userRoutes);
 app.use(`${API_PREFIX}/lost-items`, createItemRoutes("lost"));
 app.use(`${API_PREFIX}/found-items`, createItemRoutes("found"));
